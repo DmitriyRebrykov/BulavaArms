@@ -850,32 +850,47 @@
 
                 <!-- Products Grid -->
                 <div class="products-grid" id="productsContainer">
-                    <!-- Product cards here (same as original) -->
-                    <!-- Product 1 -->
-                    <div class="product-card">
-                        <div class="product-card__badge product-card__badge--popular">ПОПУЛЯРНЕ</div>
-                        <div class="product-card__image" style="background-image: url('data:image/svg+xml,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 250 250&quot;><rect fill=&quot;%23f8f9fa&quot; width=&quot;250&quot; height=&quot;250&quot;/><g fill=&quot;%23495057&quot; transform=&quot;translate(125,125)&quot;><rect x=&quot;-60&quot; y=&quot;-12&quot; width=&quot;120&quot; height=&quot;24&quot; rx=&quot;12&quot;/><rect x=&quot;-70&quot; y=&quot;-8&quot; width=&quot;20&quot; height=&quot;16&quot; rx=&quot;4&quot;/><rect x=&quot;50&quot; y=&quot;-20&quot; width=&quot;30&quot; height=&quot;40&quot; rx=&quot;6&quot;/></g></svg>')"></div>
+                    {% for product in products %}
+                    <div class="product-card" 
+                         data-brand="{{ product.manufacturer }}" 
+                         data-caliber="{{ product.caliber }}" 
+                         data-price="{{ product.price }}">
+                        
+                        {% if product.status_discount %}
+                        <div class="product-card__badge product-card__badge--sale">ЗНИЖКА</div>
+                        {% endif %}
+                        
+                        <div class="product-card__image" style="background-image: url('{{ product.main_image.url }}')"></div>
+                        
                         <div class="product-card__content">
-                            <h3 class="product-card__title">Карабін нарізний LMT MARS кал. .223 REM 16"</h3>
+                            <h3 class="product-card__title">{{ product.name }}</h3>
+                            
                             <p class="product-card__status">
+                                {% if product.in_stock %}
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                 </svg>
                                 В наявності
+                                {% else %}
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                                Під замовлення
+                                {% endif %}
                             </p>
-                            <div class="product-card__rating">
-                                <div class="stars">
-                                    <span class="star">★</span>
-                                    <span class="star">★</span>
-                                    <span class="star">★</span>
-                                    <span class="star">★</span>
-                                    <span class="star star--empty">★</span>
-                                </div>
-                                <span class="product-card__reviews">(24 відгуки)</span>
-                            </div>
+                            
+                            {% if product.caliber %}
+                            <p class="text-sm text-gray-600 mb-2">Калібр: {{ product.caliber }}</p>
+                            {% endif %}
+                            
                             <div class="product-card__footer">
                                 <div>
-                                    <span class="product-card__price">294 624</span>
+                                    {% if product.status_discount and product.discount_price %}
+                                    <div class="text-sm text-gray-500 line-through">{{ product.price }} ₴</div>
+                                    <span class="product-card__price">{{ product.discount_price }}</span>
+                                    {% else %}
+                                    <span class="product-card__price">{{ product.price }}</span>
+                                    {% endif %}
                                     <span class="product-card__currency">₴</span>
                                 </div>
                                 <button class="product-card__buy">
@@ -887,8 +902,11 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Additional products truncated for brevity - include all 8 products from original -->
+                    {% empty %}
+                    <div class="no-products">
+                        <p>Товари не знайдено</p>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
