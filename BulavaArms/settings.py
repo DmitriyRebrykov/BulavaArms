@@ -29,7 +29,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_filters',
-    'main',
+    'apps.main',
+    'apps.cart',
 ]
 
 MIDDLEWARE = [
@@ -117,3 +118,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# Custom settings
+CART_SESSION_ID = 'cart'
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 7 days
