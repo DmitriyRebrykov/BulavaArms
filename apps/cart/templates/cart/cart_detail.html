@@ -1,0 +1,463 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}BulavaArms - Кошик{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cart-section {
+        background: linear-gradient(135deg, #f8f8f8 0%, #f0f0f0 100%);
+        padding: 4rem 0;
+        min-height: calc(100vh - 300px);
+    }
+    
+    .cart-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        margin-bottom: 1.5rem;
+    }
+    
+    .cart-item {
+        display: flex;
+        gap: 2rem;
+        padding: 1.5rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .cart-item:last-child {
+        border-bottom: none;
+    }
+    
+    .cart-item-image {
+        width: 140px;
+        height: 140px;
+        background: #f8f8f8;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+    
+    .cart-item-info {
+        flex: 1;
+    }
+    
+    .cart-item-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #000000;
+        margin-bottom: 0.5rem;
+    }
+    
+    .cart-item-details {
+        color: #666666;
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+    }
+    
+    .cart-item-price {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #000000;
+    }
+    
+    .quantity-control {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+    
+    .quantity-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
+        background: #495057;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        font-size: 1.2rem;
+    }
+    
+    .quantity-btn:hover {
+        background: #343a40;
+    }
+    
+    .quantity-display {
+        min-width: 50px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .remove-btn {
+        color: #999999;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        padding: 0.5rem;
+        background: #ffebee;
+        border: none;
+        border-radius: 6px;
+        margin-left: 1rem;
+    }
+    
+    .remove-btn:hover {
+        color: white;
+        background: #ff4444;
+    }
+    
+    .summary-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        position: sticky;
+        top: 2rem;
+    }
+    
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        font-size: 1rem;
+    }
+    
+    .summary-row--total {
+        border-top: 2px solid #f0f0f0;
+        margin-top: 1rem;
+        padding-top: 1.5rem;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+    
+    .btn {
+        padding: 1rem 2rem;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        width: 100%;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #495057, #343a40);
+        color: white;
+        font-size: 1.1rem;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+    
+    .btn-secondary {
+        background: #e0e0e0;
+        color: #333333;
+        margin-top: 0.75rem;
+    }
+    
+    .btn-secondary:hover {
+        background: #d0d0d0;
+    }
+    
+    .empty-cart {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    
+    .empty-cart-icon {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 2rem;
+        color: #cccccc;
+    }
+    
+    .steps-indicator {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 3rem;
+    }
+    
+    .step {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .step-number {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #e0e0e0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: #666666;
+    }
+    
+    .step--active .step-number {
+        background: linear-gradient(135deg, #495057, #343a40);
+        color: white;
+    }
+    
+    .step-label {
+        font-weight: 600;
+        color: #999999;
+    }
+    
+    .step--active .step-label {
+        color: #000000;
+    }
+    
+    .step-arrow {
+        color: #cccccc;
+        margin: 0 0.5rem;
+    }
+    
+    .discount-badge {
+        background: #ff4444;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-left: 8px;
+    }
+    
+    .original-price {
+        text-decoration: line-through;
+        color: #999;
+        margin-right: 8px;
+    }
+    
+    @media (max-width: 768px) {
+        .cart-item {
+            flex-direction: column;
+        }
+        
+        .cart-item-image {
+            width: 100%;
+            height: 200px;
+        }
+        
+        .steps-indicator {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .step-arrow {
+            transform: rotate(90deg);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Cart Section -->
+<section class="cart-section">
+    <div class="container mx-auto px-4">
+        <!-- Breadcrumb -->
+        <nav class="text-sm text-gray-500 mb-6">
+            <a href="{% url 'main:main_page' %}" class="hover:text-gray-700">Головна</a> > Кошик
+        </nav>
+
+        <!-- Page Title -->
+        <h1 class="text-4xl font-bold mb-8 text-primary-900">КОШИК</h1>
+
+        <!-- Steps Indicator -->
+        <div class="steps-indicator">
+            <div class="step step--active">
+                <div class="step-number">1</div>
+                <div class="step-label">Кошик</div>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-label">Оформлення</div>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-label">Оплата</div>
+            </div>
+        </div>
+
+        {% if cart_items %}
+            <!-- Cart with items -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Cart Items Column -->
+                <div class="lg:col-span-2">
+                    <div class="cart-card">
+                        {% for item in cart_items %}
+                        <div class="cart-item">
+                            <!-- Product Image -->
+                            <div class="cart-item-image" {% if item.product.main_image %}style="background-image: url('{{ item.product.main_image.url }}')"{% endif %}>
+                                {% if not item.product.main_image %}
+                                    <svg class="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Product Info -->
+                            <div class="cart-item-info">
+                                <h3 class="cart-item-title">{{ item.product.name }}</h3>
+                                <p class="cart-item-details">
+                                    {% if item.product.manufacturer %}Виробник: {{ item.product.manufacturer }}{% endif %}
+                                    {% if item.product.category %} • {{ item.product.category.name }}{% endif %}
+                                    {% if item.product.caliber %} • Калібр: {{ item.product.caliber }}{% endif %}
+                                </p>
+                                
+                                <!-- Price with discount -->
+                                {% if item.product.status_discount and item.product.discount_price %}
+                                <div class="mb-2">
+                                    <span class="original-price">{{ item.product.price }}₴</span>
+                                    <span class="discount-badge">ЗНИЖКА</span>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Price and Quantity -->
+                                <div class="flex items-center justify-between">
+                                    <div class="cart-item-price">{{ item.price }}₴</div>
+                                    
+                                    <!-- Quantity Controls with Forms -->
+                                    <div class="quantity-control">
+                                        <!-- Decrease (кнопка -) -->
+                                        {% if item.quantity > 1 %}
+                                        <form method="post" action="{% url 'cart:cart_update' item.product.id %}" style="display: inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="quantity" value="{{ item.quantity|add:'-1' }}">
+                                            <button type="submit" class="quantity-btn">−</button>
+                                        </form>
+                                        {% else %}
+                                        <button class="quantity-btn" style="opacity: 0.3; cursor: not-allowed;" disabled>−</button>
+                                        {% endif %}
+                                        
+                                        <!-- Quantity display -->
+                                        <span class="quantity-display">{{ item.quantity }}</span>
+                                        
+                                        <!-- Increase (кнопка +) -->
+                                        {% if item.quantity < 99 %}
+                                        <form method="post" action="{% url 'cart:cart_update' item.product.id %}" style="display: inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="quantity" value="{{ item.quantity|add:'1' }}">
+                                            <button type="submit" class="quantity-btn">+</button>
+                                        </form>
+                                        {% else %}
+                                        <button class="quantity-btn" style="opacity: 0.3; cursor: not-allowed;" disabled>+</button>
+                                        {% endif %}
+                                        
+                                        <!-- Remove (кнопка видалити) -->
+                                        <form method="post" action="{% url 'cart:cart_remove' item.product.id %}" style="display: inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="remove-btn" onclick="return confirm('Видалити товар з кошика?')">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Order Summary Column -->
+                <div class="lg:col-span-1">
+                    <div class="summary-card">
+                        <h2 class="text-2xl font-bold mb-6">Разом</h2>
+                        
+                        <!-- Subtotal -->
+                        <div class="summary-row">
+                            <span>Товари ({{ cart_items_count }}):</span>
+                            <span class="font-semibold">{{ cart_subtotal }}₴</span>
+                        </div>
+                        
+                        <!-- Discount -->
+                        {% if cart_discount > 0 %}
+                        <div class="summary-row">
+                            <span>Знижка:</span>
+                            <span class="font-semibold text-green-600">-{{ cart_discount }}₴</span>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Shipping -->
+                        <div class="summary-row">
+                            <span>Доставка:</span>
+                            <span class="font-semibold">
+                                {% if cart_subtotal >= 50000 %}
+                                    <span class="text-green-600">Безкоштовно</span>
+                                {% else %}
+                                    За тарифами перевізника
+                                {% endif %}
+                            </span>
+                        </div>
+                        
+                        <!-- Total -->
+                        <div class="summary-row summary-row--total">
+                            <span>До сплати:</span>
+                            <span>{{ cart_total }}₴</span>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="mt-6">
+                            <a href="#" class="btn btn-primary">ОФОРМИТИ ЗАМОВЛЕННЯ</a>
+                            <a href="{% url 'main:catalog' %}" class="btn btn-secondary">Продовжити покупки</a>
+                        </div>
+
+                        <!-- Clear Cart Button -->
+                        <div class="mt-4">
+                            <form method="get" action="{% url 'cart:cart_clear' %}" onsubmit="return confirm('Очистити весь кошик?')">
+                                <button type="submit" class="btn btn-secondary" style="background: #ffebee; color: #ff4444;">
+                                    Очистити кошик
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Benefits -->
+                        <div class="mt-6 pt-6 border-t border-gray-200">
+                            <div class="text-sm text-gray-600">
+                                <p class="mb-2">✓ Безкоштовна доставка від 50,000₴</p>
+                                <p class="mb-2">✓ Гарантія повернення 14 днів</p>
+                                <p>✓ Офіційна гарантія виробника</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <!-- Empty Cart -->
+            <div class="cart-card">
+                <div class="empty-cart">
+                    <div class="empty-cart-icon">
+                        <svg class="w-full h-full" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold mb-4">Ваш кошик порожній</h2>
+                    <p class="text-gray-600 mb-6">Додайте товари до кошика, щоб продовжити покупки</p>
+                    <a href="{% url 'main:catalog' %}" class="btn btn-primary inline-block" style="width: auto; padding: 1rem 3rem;">Продовжити покупки</a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
