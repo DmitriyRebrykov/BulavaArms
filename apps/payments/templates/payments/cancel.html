@@ -1,0 +1,152 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}BulavaArms - Оплата відменена{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cancel-section {
+        background: linear-gradient(135deg, #f8f8f8 0%, #f0f0f0 100%);
+        padding: 5rem 0;
+        min-height: calc(100vh - 300px);
+    }
+    .cancel-card {
+        background: white;
+        border-radius: 16px;
+        padding: 3rem 2.5rem;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        max-width: 520px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .cancel-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        box-shadow: 0 4px 14px rgba(245,158,11,0.35);
+        animation: pop 0.4s cubic-bezier(.175,.885,.32,1.275);
+    }
+    @keyframes pop {
+        0% { transform: scale(0); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    .cancel-icon svg { width: 42px; height: 42px; color: white; }
+
+    .cancel-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #0c0d0e;
+        margin-bottom: 0.5rem;
+    }
+    .cancel-subtitle {
+        color: #6c757d;
+        font-size: 1.05rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+
+    .info-box {
+        background: #fff8e1;
+        border: 1px solid #ffe082;
+        border-radius: 10px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 2rem;
+        font-size: 0.9rem;
+        color: #795548;
+        text-align: left;
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+    }
+    .info-box svg { width: 20px; height: 20px; color: #f59e0b; flex-shrink: 0; margin-top: 2px; }
+
+    .btn-group {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .btn {
+        padding: 0.85rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.25s;
+        border: none;
+        text-decoration: none;
+        font-size: 0.95rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .btn--primary {
+        background: linear-gradient(135deg, #6772e5, #5a67d8);
+        color: white;
+    }
+    .btn--primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(103,114,229,0.4);
+    }
+    .btn--secondary {
+        background: #f0f0f0;
+        color: #333;
+    }
+    .btn--secondary:hover { background: #e2e2e2; }
+
+    @media (max-width: 560px) {
+        .cancel-card { padding: 2rem 1.25rem; }
+        .cancel-title { font-size: 1.5rem; }
+        .btn-group { flex-direction: column; align-items: center; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="cancel-section">
+    <div class="container mx-auto px-4">
+        <div class="cancel-card">
+
+            <!-- Warning icon -->
+            <div class="cancel-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v3.75m-9.303 3.376a12 12 0 1121.593 0M12 15.75h.007"/>
+                </svg>
+            </div>
+
+            <h1 class="cancel-title">Оплата відменена</h1>
+            <p class="cancel-subtitle">Ви закрили окно оплаті або перервали процес. Нічого не списано з вашої картки.</p>
+
+            <!-- Info box -->
+            <div class="info-box">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                <div>
+                    Товари залишаються в вашому кошику. Ви можете повернутися до оплаті в будь-який час, доки сесія активна (обмеження: 24 год.).
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="btn-group">
+                <a href="{% url 'cart:checkout' %}" class="btn btn--primary">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px;height:18px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    Повернутись до оплаті
+                </a>
+                <a href="{% url 'cart:cart_detail' %}" class="btn btn--secondary">
+                    Кошик
+                </a>
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}

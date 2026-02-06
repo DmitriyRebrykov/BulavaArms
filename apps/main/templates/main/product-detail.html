@@ -1,0 +1,323 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} - BulavaArms{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen pb-20">
+    <!-- Breadcrumbs -->
+    <div class="bg-white border-b border-gray-200">
+        <div class="container mx-auto px-4 py-4">
+            <nav class="flex text-sm text-gray-500 overflow-x-auto whitespace-nowrap hide-scrollbar">
+                <a href="/" class="hover:text-primary-900 transition-colors">Головна</a>
+                <span class="mx-2">/</span>
+                <a href="{% url 'main:catalog' %}" class="hover:text-primary-900 transition-colors">Каталог</a>
+                <span class="mx-2">/</span>
+                <a href="{% url 'main:catalog' %}?category={{ product.category.slug }}" class="hover:text-primary-900 transition-colors">{{ product.category.name }}</a>
+                <span class="mx-2">/</span>
+                <span class="text-primary-900 font-medium truncate">{{ product.name }}</span>
+            </nav>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-0 lg:divide-x divide-gray-100">
+
+                <!-- LEFT COLUMN: Image Gallery -->
+                <div class="p-6 md:p-8 bg-white">
+                    <div class="relative mb-6 group">
+                        <!-- Badges -->
+                        <div class="absolute top-4 left-4 z-10 flex flex-col gap-2">
+                            {% if product.status_discount %}
+                                <span class="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-md shadow-sm">-SALE-</span>
+                            {% endif %}
+                            <span class="bg-primary-900 text-white text-xs font-bold px-3 py-1.5 rounded-md shadow-sm uppercase">
+                                {{ product.get_product_type_display }}
+                            </span>
+                        </div>
+
+                        <!-- Main Image -->
+                        <div class="aspect-square bg-gray-50 rounded-xl overflow-hidden flex items-center justify-center cursor-zoom-in relative">
+                            <img id="mainImage"
+                                 src="{{ product.main_image.url }}"
+                                 alt="{{ product.name }}"
+                                 class="w-full h-full object-contain p-4 transition-transform duration-500 hover:scale-110">
+                        </div>
+                    </div>
+
+                    <!-- Thumbnails -->
+                    {% if product.images.all %}
+                    <div class="grid grid-cols-5 gap-3">
+                        <!-- Main Image Thumbnail -->
+                        <button onclick="changeImage('{{ product.main_image.url }}', this)"
+                                class="aspect-square rounded-lg border-2 border-primary-900 p-1 bg-gray-50 overflow-hidden hover:opacity-80 transition-opacity thumbnail-btn active">
+                            <img src="{{ product.main_image.url }}" class="w-full h-full object-contain">
+                        </button>
+
+                        <!-- Extra Images -->
+                        {% for img in product.images.all %}
+                        <button onclick="changeImage('{{ img.image.url }}', this)"
+                                class="aspect-square rounded-lg border-2 border-transparent hover:border-gray-300 p-1 bg-gray-50 overflow-hidden transition-all thumbnail-btn">
+                            <img src="{{ img.image.url }}" class="w-full h-full object-contain">
+                        </button>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- RIGHT COLUMN: Product Info -->
+                <div class="p-6 md:p-8 flex flex-col h-full">
+                    <!-- Manufacturer & Stock -->
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="text-sm text-gray-500">
+                            Артикул: <span class="font-mono text-gray-900">#{{ product.id|stringformat:"06d" }}</span>
+                        </div>
+                        {% if product.in_stock %}
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700">
+                            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                            В наявності
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700">
+                            Немає в наявності
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Title & Brand -->
+                    <h1 class="text-2xl md:text-3xl font-extrabold text-primary-900 mb-2 leading-tight">
+                        {{ product.name }}
+                    </h1>
+                    {% if product.manufacturer %}
+                    <a href="{% url 'main:catalog' %}?manufacturer={{ product.manufacturer }}" class="text-primary-600 hover:text-primary-800 font-medium text-sm mb-6 inline-block">
+                        Виробник: {{ product.manufacturer }}
+                    </a>
+                    {% endif %}
+
+                    <!-- Price Block -->
+                    <div class="mb-8 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                        <div class="flex items-end gap-3 flex-wrap">
+                            {% if product.status_discount and product.discount_price %}
+                                <div class="text-3xl font-extrabold text-red-600">
+                                    {{ product.discount_price }} <span class="text-lg font-normal">₴</span>
+                                </div>
+                                <div class="text-lg text-gray-400 line-through mb-1">
+                                    {{ product.price }} ₴
+                                </div>
+                            {% else %}
+                                <div class="text-3xl font-extrabold text-primary-900">
+                                    {{ product.price }} <span class="text-lg font-normal">₴</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Short Specs (Key Features) -->
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        {% if product.caliber %}
+                        <div class="flex flex-col p-3 rounded-lg border border-gray-100">
+                            <span class="text-xs text-gray-400 uppercase tracking-wider mb-1">Калібр</span>
+                            <span class="font-bold text-primary-900">{{ product.caliber }}</span>
+                        </div>
+                        {% endif %}
+                        {% if product.material %}
+                        <div class="flex flex-col p-3 rounded-lg border border-gray-100">
+                            <span class="text-xs text-gray-400 uppercase tracking-wider mb-1">Матеріал</span>
+                            <span class="font-bold text-primary-900">{{ product.material }}</span>
+                        </div>
+                        {% endif %}
+                        {% if product.color %}
+                        <div class="flex flex-col p-3 rounded-lg border border-gray-100">
+                            <span class="text-xs text-gray-400 uppercase tracking-wider mb-1">Колір</span>
+                            <span class="font-bold text-primary-900">{{ product.color }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="mt-auto">
+                        <form action="{% url 'cart:cart_add' product.id %}" method="post" class="flex flex-col sm:flex-row gap-4">
+                            {% csrf_token %}
+
+                            <!-- Quantity Input -->
+                            <div class="flex items-center border border-gray-300 rounded-xl w-full sm:w-32 bg-white">
+                                <button type="button" onclick="decrementQty()" class="w-10 h-12 flex items-center justify-center text-gray-500 hover:text-primary-900 transition-colors text-lg font-bold">-</button>
+                                <input type="number" name="quantity" id="quantity" value="1" min="1" max="10" class="w-full h-12 text-center border-none focus:ring-0 text-primary-900 font-bold appearance-none bg-transparent">
+                                <button type="button" onclick="incrementQty()" class="w-10 h-12 flex items-center justify-center text-gray-500 hover:text-primary-900 transition-colors text-lg font-bold">+</button>
+                            </div>
+
+                            <!-- Add Button -->
+                            <button type="submit"
+                                    class="flex-1 bg-primary-900 text-white h-12 rounded-xl font-bold hover:bg-primary-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center gap-2
+                                    {% if not product.in_stock %}opacity-50 cursor-not-allowed{% endif %}"
+                                    {% if not product.in_stock %}disabled{% endif %}>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                                {% if product.in_stock %}Додати в кошик{% else %}Повідомити про наявність{% endif %}
+                            </button>
+
+                            <!-- Wishlist Button (Optional) -->
+                            <button type="button" class="w-12 h-12 rounded-xl border border-gray-200 flex items-center justify-center text-gray-400 hover:text-red-500 hover:border-red-200 transition-colors">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                            </button>
+                        </form>
+
+                        <!-- Trust Badges -->
+                        <div class="mt-8 pt-6 border-t border-gray-100 grid grid-cols-2 gap-4">
+                            <div class="flex items-center gap-3 text-sm text-gray-600">
+                                <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                <span>Офіційна гарантія</span>
+                            </div>
+                            <div class="flex items-center gap-3 text-sm text-gray-600">
+                                <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                <span>Швидка доставка</span>
+                            </div>
+                            <div class="flex items-center gap-3 text-sm text-gray-600">
+                                <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                <span>Повернення 14 днів</span>
+                            </div>
+                            <div class="flex items-center gap-3 text-sm text-gray-600">
+                                <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                <span>Тільки оригінал</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Description & Details Tabs -->
+        <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left: Description -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+                    <h2 class="text-xl font-bold text-primary-900 mb-6 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+                        Опис товару
+                    </h2>
+                    <div class="prose prose-slate max-w-none text-gray-600 leading-relaxed">
+                        {% if product.description %}
+                            {{ product.description|linebreaks }}
+                        {% else %}
+                            <p class="text-gray-400 italic">Опис для цього товару відсутній.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Full Characteristics Table -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 sticky top-4">
+                    <h2 class="text-xl font-bold text-primary-900 mb-6 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        Характеристики
+                    </h2>
+
+                    <div class="space-y-0 border-t border-gray-100">
+                        {% if product.manufacturer %}
+                        <div class="flex justify-between py-3 border-b border-gray-100">
+                            <span class="text-gray-500 text-sm">Виробник</span>
+                            <span class="text-primary-900 font-medium text-sm text-right">{{ product.manufacturer }}</span>
+                        </div>
+                        {% endif %}
+
+                        {% if product.product_type %}
+                        <div class="flex justify-between py-3 border-b border-gray-100">
+                            <span class="text-gray-500 text-sm">Тип товару</span>
+                            <span class="text-primary-900 font-medium text-sm text-right">{{ product.get_product_type_display }}</span>
+                        </div>
+                        {% endif %}
+
+                        {% if product.caliber %}
+                        <div class="flex justify-between py-3 border-b border-gray-100">
+                            <span class="text-gray-500 text-sm">Калібр</span>
+                            <span class="text-primary-900 font-medium text-sm text-right">{{ product.caliber }}</span>
+                        </div>
+                        {% endif %}
+
+                        {% if product.material %}
+                        <div class="flex justify-between py-3 border-b border-gray-100">
+                            <span class="text-gray-500 text-sm">Матеріал</span>
+                            <span class="text-primary-900 font-medium text-sm text-right">{{ product.material }}</span>
+                        </div>
+                        {% endif %}
+
+                        {% if product.color %}
+                        <div class="flex justify-between py-3 border-b border-gray-100">
+                            <span class="text-gray-500 text-sm">Колір</span>
+                            <span class="text-primary-900 font-medium text-sm text-right">{{ product.color }}</span>
+                        </div>
+                        {% endif %}
+
+                        {% if product.size %}
+                        <div class="flex justify-between py-3 border-b border-gray-100">
+                            <span class="text-gray-500 text-sm">Розмір</span>
+                            <span class="text-primary-900 font-medium text-sm text-right">{{ product.size }}</span>
+                        </div>
+                        {% endif %}
+
+                        <div class="flex justify-between py-3 border-b border-gray-100">
+                            <span class="text-gray-500 text-sm">Гарантія</span>
+                            <span class="text-primary-900 font-medium text-sm text-right">12 місяців</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Hide number input spinners */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+</style>
+
+<script>
+    // Image Gallery Logic
+    function changeImage(src, btn) {
+        const mainImage = document.getElementById('mainImage');
+        // Fade out
+        mainImage.style.opacity = '0.5';
+
+        setTimeout(() => {
+            mainImage.src = src;
+            mainImage.style.opacity = '1';
+        }, 200);
+
+        // Active state for thumbnails
+        document.querySelectorAll('.thumbnail-btn').forEach(el => {
+            el.classList.remove('border-primary-900', 'active');
+            el.classList.add('border-transparent');
+        });
+        btn.classList.remove('border-transparent');
+        btn.classList.add('border-primary-900', 'active');
+    }
+
+    // Quantity Logic
+    function incrementQty() {
+        const input = document.getElementById('quantity');
+        const current = parseInt(input.value);
+        if (current < 10) input.value = current + 1;
+    }
+
+    function decrementQty() {
+        const input = document.getElementById('quantity');
+        const current = parseInt(input.value);
+        if (current > 1) input.value = current - 1;
+    }
+</script>
+{% endblock %}

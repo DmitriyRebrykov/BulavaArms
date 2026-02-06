@@ -1,4 +1,5 @@
-from django.shortcuts import render
+
+from django.shortcuts import render,get_object_or_404
 from django.core.paginator import Paginator
 from .models import Product, Category
 from .filters import ProductFilter
@@ -74,3 +75,11 @@ def catalog(request):
     }
     
     return render(request, 'main/catalog.html', context)
+
+
+
+
+
+def product_detail(request, slug):
+    product = get_object_or_404(Product, slug=slug)
+    return render(request,'main/product-detail.html', {'product':product})

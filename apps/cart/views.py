@@ -8,12 +8,8 @@ from .cart import Cart
 
 
 def cart_view(request):
-    """
-    Відображення корзини
-    """
     cart = Cart(request)
     
-    # Підготовка даних для шаблону
     cart_items = []
     for item in cart:
         cart_items.append({

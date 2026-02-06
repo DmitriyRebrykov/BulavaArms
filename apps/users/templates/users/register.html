@@ -1,0 +1,378 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Реєстрація - BulavaArms{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-section {
+        background: linear-gradient(135deg, #f8f8f8 0%, #f0f0f0 100%);
+        padding: 4rem 0;
+        min-height: calc(100vh - 300px);
+    }
+    
+    .auth-card {
+        background: white;
+        border-radius: 16px;
+        padding: 3rem;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    
+    .auth-header__icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        background: linear-gradient(135deg, #495057, #343a40);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+    
+    .auth-header__title {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0c0d0e;
+        margin-bottom: 0.5rem;
+    }
+    
+    .auth-header__subtitle {
+        color: #64748b;
+        font-size: 1rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #0c0d0e;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #495057;
+        box-shadow: 0 0 0 3px rgba(73, 80, 87, 0.1);
+    }
+    
+    .form-input.error {
+        border-color: #ef4444;
+    }
+    
+    .form-error {
+        color: #ef4444;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .form-help {
+        color: #64748b;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+    }
+    
+    .password-requirements {
+        background: #f8fafc;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 0.75rem;
+    }
+    
+    .password-requirements__title {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #475569;
+        margin-bottom: 0.5rem;
+    }
+    
+    .password-requirements__list {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .password-requirements__item {
+        font-size: 0.8rem;
+        color: #64748b;
+        padding: 0.25rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .password-requirements__item::before {
+        content: "•";
+        color: #94a3b8;
+    }
+    
+    .auth-btn {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #495057, #343a40);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+    }
+    
+    .auth-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(73, 80, 87, 0.3);
+    }
+    
+    .auth-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .auth-divider {
+        text-align: center;
+        margin: 2rem 0;
+        position: relative;
+    }
+    
+    .auth-divider::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        height: 1px;
+        background: #e2e8f0;
+    }
+    
+    .auth-divider__text {
+        background: white;
+        padding: 0 1rem;
+        position: relative;
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+    
+    .auth-link {
+        text-align: center;
+        margin-top: 2rem;
+        color: #64748b;
+    }
+    
+    .auth-link a {
+        color: #495057;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    
+    .auth-link a:hover {
+        color: #343a40;
+    }
+    
+    .alert {
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .alert-error {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #991b1b;
+    }
+    
+    .alert-success {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #166534;
+    }
+    
+    @media (max-width: 768px) {
+        .auth-card {
+            padding: 2rem 1.5rem;
+            margin: 1rem;
+        }
+        
+        .auth-header__title {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="container mx-auto px-4">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-header__icon">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                    </svg>
+                </div>
+                <h1 class="auth-header__title">РЕЄСТРАЦІЯ</h1>
+                <p class="auth-header__subtitle">Створіть обліковий запис для покупок</p>
+            </div>
+
+            {% if form.non_field_errors %}
+            <div class="alert alert-error">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>
+                <span>{{ form.non_field_errors|first }}</span>
+            </div>
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="{{ form.username.id_for_label }}" class="form-label">
+                        Ім'я користувача *
+                    </label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <div class="form-error">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>{{ form.username.errors|first }}</span>
+                        </div>
+                    {% endif %}
+                    <div class="form-help">
+                        Латинські літери, цифри та символи @/./+/-/_
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.email.id_for_label }}" class="form-label">
+                        Email *
+                    </label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <div class="form-error">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>{{ form.email.errors|first }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                            Ім'я *
+                        </label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                            <div class="form-error">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>{{ form.first_name.errors|first }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                            Прізвище *
+                        </label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                            <div class="form-error">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>{{ form.last_name.errors|first }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.password1.id_for_label }}" class="form-label">
+                        Пароль *
+                    </label>
+                    {{ form.password1 }}
+                    {% if form.password1.errors %}
+                        <div class="form-error">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>{{ form.password1.errors|first }}</span>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="password-requirements">
+                        <div class="password-requirements__title">Вимоги до пароля:</div>
+                        <ul class="password-requirements__list">
+                            <li class="password-requirements__item">Мінімум 8 символів</li>
+                            <li class="password-requirements__item">Не може бути схожим на ваше ім'я</li>
+                            <li class="password-requirements__item">Не може бути занадто поширеним</li>
+                            <li class="password-requirements__item">Не може складатися лише з цифр</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.password2.id_for_label }}" class="form-label">
+                        Підтвердження пароля *
+                    </label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
+                        <div class="form-error">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>{{ form.password2.errors|first }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="auth-btn">
+                    Зареєструватися
+                </button>
+            </form>
+
+            <div class="auth-divider">
+                <span class="auth-divider__text">або</span>
+            </div>
+
+            <div class="auth-link">
+                Вже маєте обліковий запис? <a href="{% url 'users:login' %}">Увійти</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

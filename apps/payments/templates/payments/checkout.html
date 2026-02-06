@@ -1,0 +1,311 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}BulavaArms - Оформлення замовлення{% endblock %}
+
+{% block extra_css %}
+<style>
+    .checkout-section {
+        background: linear-gradient(135deg, #f8f8f8 0%, #f0f0f0 100%);
+        padding: 4rem 0;
+        min-height: calc(100vh - 300px);
+    }
+
+    .steps-indicator {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 3rem;
+    }
+    .step {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .step-number {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #e0e0e0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: #666;
+    }
+    .step--active .step-number {
+        background: linear-gradient(135deg, #495057, #343a40);
+        color: white;
+    }
+    .step--done .step-number {
+        background: #28a745;
+        color: white;
+    }
+    .step-label {
+        font-weight: 600;
+        color: #999;
+    }
+    .step--active .step-label { color: #000; }
+    .step--done .step-label { color: #28a745; }
+    .step-arrow { color: #ccc; margin: 0 0.5rem; }
+
+    .checkout-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        margin-bottom: 1.5rem;
+    }
+    .checkout-card__title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #0c0d0e;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .order-line {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.85rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .order-line:last-child { border-bottom: none; }
+    .order-line__img {
+        width: 72px;
+        height: 72px;
+        border-radius: 8px;
+        background: #f8f8f8;
+        overflow: hidden;
+        flex-shrink: 0;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+    .order-line__info { flex: 1; }
+    .order-line__name { font-weight: 600; color: #0c0d0e; font-size: 0.95rem; }
+    .order-line__meta { color: #666; font-size: 0.82rem; margin-top: 2px; }
+    .order-line__price { font-weight: 700; color: #0c0d0e; white-space: nowrap; }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.6rem 0;
+        font-size: 1rem;
+        color: #333;
+    }
+    .summary-row--discount { color: #28a745; }
+    .summary-row--total {
+        border-top: 2px solid #f0f0f0;
+        margin-top: 0.75rem;
+        padding-top: 1rem;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #0c0d0e;
+    }
+
+    .pay-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.65rem;
+        width: 100%;
+        padding: 1.1rem 2rem;
+        background: linear-gradient(135deg, #6772e5, #5a67d8);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.15rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1.5rem;
+        letter-spacing: 0.5px;
+    }
+    .pay-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(103,114,229,0.4);
+    }
+    .pay-btn:active { transform: translateY(0); }
+    .pay-btn svg { width: 22px; height: 22px; }
+    .pay-btn--loading {
+        opacity: 0.7;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: #495057;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        transition: color 0.2s;
+    }
+    .back-link:hover { color: #343a40; }
+
+    .security-badges {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1.25rem;
+        margin-top: 1.25rem;
+        color: #888;
+        font-size: 0.78rem;
+        flex-wrap: wrap;
+    }
+    .security-badges span { display: flex; align-items: center; gap: 0.3rem; }
+    .security-badges svg { width: 14px; height: 14px; color: #6c757d; }
+
+    @media (max-width: 768px) {
+        .checkout-section { padding: 2rem 0; }
+        .checkout-card { padding: 1.25rem; }
+        .order-line { flex-wrap: wrap; }
+        .order-line__img { width: 60px; height: 60px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="checkout-section">
+    <div class="container mx-auto px-4" style="max-width: 680px;">
+
+        <!-- Breadcrumb -->
+        <nav class="text-sm text-gray-500 mb-4">
+            <a href="{% url 'main:main_page' %}" class="hover:text-gray-700">Головна</a> >
+            <a href="{% url 'cart:cart_detail' %}" class="hover:text-gray-700">Кошик</a> >
+            Оформлення
+        </nav>
+
+        <!-- Steps -->
+        <div class="steps-indicator">
+            <div class="step step--done">
+                <div class="step-number">✓</div>
+                <div class="step-label">Кошик</div>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step step--active">
+                <div class="step-number">2</div>
+                <div class="step-label">Оформлення</div>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-label">Оплата</div>
+            </div>
+        </div>
+
+        <h1 class="text-3xl font-bold mb-6 text-gray-900">Оформлення замовлення</h1>
+
+        <!-- Back link -->
+        <a href="{% url 'cart:cart_detail' %}" class="back-link">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px;height:18px;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+            </svg>
+            Назад до кошика
+        </a>
+
+        <!-- БЛОК 1: Товары -->
+        <div class="checkout-card">
+            <h2 class="checkout-card__title">Товари в замовленні</h2>
+            {% for item in cart_items %}
+            <div class="order-line">
+                <div class="order-line__img"
+                     {% if item.product.main_image %}style="background-image: url('{{ item.product.main_image.url }}')"{% endif %}>
+                </div>
+                <div class="order-line__info">
+                    <div class="order-line__name">{{ item.product.name }}</div>
+                    <div class="order-line__meta">
+                        Кількість: {{ item.quantity }}
+                        {% if item.product.caliber %} • Калібр: {{ item.product.caliber }}{% endif %}
+                    </div>
+                </div>
+                <div class="order-line__price">{{ item.total_price }} ₴</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- БЛОК 2: Итог + Кнопка оплаты -->
+        <div class="checkout-card">
+            <h2 class="checkout-card__title">Разом</h2>
+
+            <div class="summary-row">
+                <span>Товари ({{ cart_items_count }}):</span>
+                <span>{{ cart_subtotal }} ₴</span>
+            </div>
+
+            {% if cart_discount > 0 %}
+            <div class="summary-row summary-row--discount">
+                <span>Знижка:</span>
+                <span>−{{ cart_discount }} ₴</span>
+            </div>
+            {% endif %}
+
+            <div class="summary-row">
+                <span>Доставка:</span>
+                <span>
+                    {% if cart_subtotal >= 50000 %}
+                        <span style="color:#28a745; font-weight:600;">Безкоштовно</span>
+                    {% else %}
+                        За тарифами перевізника
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="summary-row summary-row--total">
+                <span>До сплати:</span>
+                <span>{{ cart_total }} ₴</span>
+            </div>
+
+            <!-- КНОПКА ОПЛАТЫ -->
+            <form method="post" action="{% url 'cart:stripe_checkout' %}" id="checkoutForm">
+                {% csrf_token %}
+                <button type="submit" class="pay-btn" id="payBtn">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    Оплатити {{ cart_total }} ₴ через Stripe
+                </button>
+            </form>
+
+            <!-- Security badges -->
+            <div class="security-badges">
+                <span>
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                    </svg>
+                    256-bit SSL
+                </span>
+                <span>
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    Stripe
+                </span>
+                <span>
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/>
+                        <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"/>
+                    </svg>
+                    PCI DSS
+                </span>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<script>
+document.getElementById('checkoutForm').addEventListener('submit', function() {
+    const btn = document.getElementById('payBtn');
+    btn.classList.add('pay-btn--loading');
+    btn.innerHTML = '<span>Переходимо до оплаті...</span>';
+});
+</script>
+{% endblock %}
