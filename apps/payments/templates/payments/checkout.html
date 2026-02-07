@@ -113,7 +113,7 @@
         gap: 0.65rem;
         width: 100%;
         padding: 1.1rem 2rem;
-        background: linear-gradient(135deg, #6772e5, #5a67d8);
+        background: linear-gradient(135deg, #7CB342, #558B2F);
         color: white;
         border: none;
         border-radius: 10px;
@@ -126,7 +126,7 @@
     }
     .pay-btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(103,114,229,0.4);
+        box-shadow: 0 6px 20px rgba(124,179,66,0.4);
     }
     .pay-btn:active { transform: translateY(0); }
     .pay-btn svg { width: 22px; height: 22px; }
@@ -161,6 +161,17 @@
     }
     .security-badges span { display: flex; align-items: center; gap: 0.3rem; }
     .security-badges svg { width: 14px; height: 14px; color: #6c757d; }
+
+    .order-number-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        margin-bottom: 1rem;
+        font-weight: 700;
+        color: #2e7d32;
+        font-size: 0.9rem;
+    }
 
     @media (max-width: 768px) {
         .checkout-section { padding: 2rem 0; }
@@ -202,6 +213,11 @@
 
         <h1 class="text-3xl font-bold mb-6 text-gray-900">Оформлення замовлення</h1>
 
+        <!-- Order number badge -->
+        <div class="order-number-badge">
+            Замовлення № {{ order.order_id }}
+        </div>
+
         <!-- Back link -->
         <a href="{% url 'cart:cart_detail' %}" class="back-link">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px;height:18px;">
@@ -230,7 +246,7 @@
             {% endfor %}
         </div>
 
-        <!-- БЛОК 2: Итог + Кнопка оплаты -->
+        <!-- БЛОК 2: Итог + Кнопка оплаты LiqPay -->
         <div class="checkout-card">
             <h2 class="checkout-card__title">Разом</h2>
 
@@ -262,15 +278,17 @@
                 <span>{{ cart_total }} ₴</span>
             </div>
 
-            <!-- КНОПКА ОПЛАТЫ -->
-            <form method="post" action="{% url 'cart:stripe_checkout' %}" id="checkoutForm">
-                {% csrf_token %}
+            <!-- ФОРМА ОПЛАТЫ LIQPAY -->
+            <form method="POST" action="{{ liqpay_action_url }}" accept-charset="utf-8" id="liqpayForm">
+                <input type="hidden" name="data" value="{{ liqpay_data }}">
+                <input type="hidden" name="signature" value="{{ liqpay_signature }}">
+
                 <button type="submit" class="pay-btn" id="payBtn">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
                     </svg>
-                    Оплатити {{ cart_total }} ₴ через Stripe
+                    Оплатити {{ cart_total }} ₴ через LiqPay
                 </button>
             </form>
 
@@ -286,23 +304,26 @@
                     <svg fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                     </svg>
-                    Stripe
+                    LiqPay
                 </span>
                 <span>
                     <svg fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/>
-                        <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"/>
+                        <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
                     </svg>
-                    PCI DSS
+                    Visa / Mastercard
                 </span>
             </div>
+
+            <p style="font-size:0.75rem; color:#999; text-align:center; margin-top:1rem;">
+                Натискаючи кнопку оплати, ви будете перенаправлені на безпечну сторінку LiqPay
+            </p>
         </div>
 
     </div>
 </section>
 
 <script>
-document.getElementById('checkoutForm').addEventListener('submit', function() {
+document.getElementById('liqpayForm').addEventListener('submit', function() {
     const btn = document.getElementById('payBtn');
     btn.classList.add('pay-btn--loading');
     btn.innerHTML = '<span>Переходимо до оплаті...</span>';

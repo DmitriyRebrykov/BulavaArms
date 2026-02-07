@@ -23,7 +23,7 @@ class Cart:
     def add(self, product, quantity=1, override_quantity=False):
         """
         Додати товар до корзини або оновити його кількість
-        
+
         Args:
             product: об'єкт Product
             quantity: кількість товару
@@ -32,7 +32,6 @@ class Cart:
         product_id = str(product.id)
         
         if product_id not in self.cart:
-            # Визначаємо ціну (зі знижкою якщо є)
             if product.status_discount and product.discount_price:
                 price = str(product.discount_price)
             else:
@@ -83,22 +82,23 @@ class Cart:
             else:
                 del self.cart[product_id]
             self.save()
-    
+
     def __iter__(self):
-        """
-        Перебрати товари в корзині та отримати продукти з БД
-        """
         product_ids = self.cart.keys()
-        # Отримати об'єкти продуктів з БД
-        products = Product.objects.filter(id__in=product_ids).select_related('category')
-        cart = self.cart.copy()
-        
+        products = Product.objects.filter(id__in=product_ids) \
+            .select_related('category')
+
         for product in products:
-            cart[str(product.id)]['product'] = product
-        
-        for item in cart.values():
-            item['price'] = Decimal(item['price'])
-            item['total_price'] = item['price'] * item['quantity']
+            # Беремо копію, щоб не змінювати оригінал
+            item = self.cart[str(product.id)].copy()
+            item['product'] = product
+
+            price = Decimal(item['price'])
+            quantity = item['quantity']
+
+            item['price'] = price  # тільки в тимчасовому словнику
+            item['total_price'] = price * quantity
+
             yield item
     
     def __len__(self):
@@ -106,16 +106,13 @@ class Cart:
         Підрахувати загальну кількість товарів у корзині
         """
         return sum(item['quantity'] for item in self.cart.values())
-    
+
     def get_total_price(self):
-        """
-        Підрахувати загальну вартість товарів у корзині (з урахуванням знижок)
-        """
         return sum(
             Decimal(item['price']) * item['quantity']
             for item in self.cart.values()
         )
-    
+
     def get_subtotal(self):
         """
         Підрахувати суму без знижок (оригінальні ціни)

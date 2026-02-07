@@ -4,7 +4,7 @@
 {% block title %}Каталог - BulavaArms{% endblock %}
 
 {% block extra_css %}
-/* --- ОБЩИЕ СТИЛИ КАТАЛОГА --- */
+/* --- ЗАГАЛЬНІ СТИЛІ КАТАЛОГУ --- */
 .catalog__header {
     display: flex;
     justify-content: space-between;
@@ -43,6 +43,7 @@
     font-size: 0.9rem;
 }
 
+/* Сайдбар (десктоп) */
 .sidebar {
     background: white;
     border-radius: 16px;
@@ -97,19 +98,50 @@
     margin-bottom: 10px;
 }
 
+/* --- ВИПРАВЛЕНИЙ ФІЛЬТР ЦІНИ --- */
 .price-inputs {
     display: flex;
-    gap: 0.5rem;
+    align-items: center; /* Вирівнювання по центру вертикально */
+    justify-content: space-between;
+    gap: 8px;
     margin-bottom: 1rem;
 }
 
 .price-input {
-    flex: 1;
-    padding: 0.5rem;
+    width: 100%;
+    padding: 8px 10px;
     border: 1px solid #e2e8f0;
     border-radius: 6px;
-    text-align: center;
+    text-align: left; /* Текст зліва, щоб не стрибав */
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: #fff;
 }
+
+.price-input:focus {
+    border-color: #343a40;
+    box-shadow: 0 0 0 2px rgba(52, 58, 64, 0.1);
+}
+
+.price-separator {
+    color: #64748b;
+    font-weight: 500;
+    user-select: none;
+}
+
+/* Прибираємо стандартні стрілочки input number (Chrome, Safari, Edge) */
+.price-input::-webkit-outer-spin-button,
+.price-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Прибираємо стрілочки для Firefox */
+.price-input[type=number] {
+    -moz-appearance: textfield;
+}
+/* -------------------------------- */
 
 .filter-actions {
     display: flex;
@@ -139,8 +171,7 @@
     color: #64748b;
 }
 
-/* --- СТИЛИ НОВЫХ КАРТОЧЕК (КАК НА СКРИНШОТЕ) --- */
-
+/* --- КАРТКИ ТОВАРІВ --- */
 .products-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -166,7 +197,6 @@
     z-index: 2;
 }
 
-/* Бейджи слева (TOP, SALE) */
 .product-card__badges {
     position: absolute;
     top: 15px;
@@ -186,11 +216,8 @@
     border-radius: 2px;
 }
 
-.badge--top { background: #f4a641; } /* Оранжевый TOP */
-.badge--sale { background: #d9534f; } /* Красный SALE */
-.badge--new { background: #5bc0de; }
+.badge--sale { background: #d9534f; }
 
-/* Иконка сердца справа */
 .product-card__favorite {
     position: absolute;
     top: 15px;
@@ -211,7 +238,6 @@
     transform: scale(1.1);
 }
 
-/* Изображение */
 .product-card__image-link {
     display: block;
     width: 100%;
@@ -227,7 +253,6 @@
     background-position: center;
 }
 
-/* Контент карточки */
 .product-card__content {
     flex-grow: 1;
     display: flex;
@@ -236,14 +261,12 @@
     text-align: left;
 }
 
-/* Артикул */
 .product-card__sku {
     font-size: 12px;
     color: #999;
     margin-bottom: 5px;
 }
 
-/* Статус (В наличии) */
 .product-card__status {
     font-size: 13px;
     font-weight: 500;
@@ -253,7 +276,6 @@
 .status-text--green { color: #5da046; }
 .status-text--red { color: #d9534f; }
 
-/* Название */
 .product-card__title {
     font-size: 15px;
     font-weight: 600;
@@ -265,14 +287,13 @@
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    height: 63px; /* Фиксированная высота для 3 строк */
+    height: 63px;
 }
 
 .product-card__title:hover {
     color: #5da046;
 }
 
-/* Подвал (Цена и Кнопка) */
 .product-card__footer {
     width: 100%;
     display: flex;
@@ -305,11 +326,10 @@
     font-weight: 400;
 }
 
-/* Кнопка купить (Зеленый квадрат) */
 .btn-buy-square {
     width: 46px;
     height: 46px;
-    background-color: #5f9e4e; /* Цвет с фото */
+    background-color: #5f9e4e;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -328,7 +348,6 @@
     height: 24px;
     color: white;
 }
-
 
 /* Pagination */
 .pagination {
@@ -355,40 +374,105 @@
     border-color: #343a40;
 }
 
-/* Mobile Styles */
+/* Базові стилі для мобільних елементів (приховані на десктопі) */
 .mobile-filter-btn { display: none; }
 .filters-overlay { display: none; }
 .sidebar__close { display: none; }
 
+/* --- МОБІЛЬНА ВЕРСІЯ (ВИПРАВЛЕНА) --- */
 @media (max-width: 1024px) {
     .products-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
 }
 
 @media (max-width: 768px) {
     .catalog__header { flex-direction: column; gap: 1rem; }
-    .sidebar { display: none; }
+
+    /* Приховуємо сайдбар за замовчуванням */
+    .sidebar {
+        display: none;
+    }
+
+    /* Кнопка "ФІЛЬТРИ" */
     .mobile-filter-btn {
-        display: flex; width: 100%; padding: 1rem;
-        background: #343a40; color: white; border: none;
-        justify-content: center; border-radius: 8px; margin-bottom: 1rem;
+        display: flex;
+        width: 100%;
+        padding: 1rem;
+        background: #343a40;
+        color: white;
+        border: none;
+        justify-content: center;
+        align-items: center;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+        cursor: pointer;
     }
 
+    /* Мобільний сайдбар (виїжджає) */
     .sidebar--mobile {
-        display: block; position: fixed; top: 0; left: -100%;
-        width: 85%; height: 100vh; background: white; z-index: 999;
-        transition: left 0.3s ease; padding: 20px; overflow-y: auto;
-    }
-    .sidebar--mobile.active { left: 0; }
-    .filters-overlay {
-        display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0,0,0,0.5); z-index: 998;
-    }
-    .filters-overlay--active { display: block; }
-    .sidebar__close {
-        display: block; position: absolute; top: 10px; right: 10px;
-        background: none; border: none; font-size: 24px;
+        display: block;
+        position: fixed;
+        top: 0;
+        left: -100%; /* Приховано за екраном */
+        width: 320px; /* Фіксована комфортна ширина */
+        max-width: 85%;
+        height: 100vh;
+        background: white;
+        z-index: 1000;
+        transition: left 0.3s ease-in-out;
+        padding: 25px 20px;
+        overflow-y: auto;
+        box-shadow: 4px 0 15px rgba(0,0,0,0.1);
     }
 
+    .sidebar--mobile.active { left: 0; }
+
+    /* Поле пошуку бренду */
+    .sidebar__search {
+        padding: 10px;
+    }
+
+    /* Фон затемнення */
+    .filters-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.6);
+        z-index: 999;
+        backdrop-filter: blur(2px);
+    }
+
+    .filters-overlay--active { display: block; }
+
+    /* Кнопка закриття (хрестик) */
+    .sidebar__close {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: #f8f9fa;
+        border: 1px solid #e2e8f0;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        font-size: 24px;
+        line-height: 1;
+        color: #333;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .sidebar__close:hover {
+        background: #e2e8f0;
+        color: #000;
+    }
+
+    /* Адаптація карток */
     .products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .product-card { padding: 10px; }
     .product-card__image { height: 140px; }
@@ -415,7 +499,8 @@
 
         <div class="flex gap-6">
             <!-- Sidebar Filters -->
-            <aside class="w-1/4 sidebar sidebar--mobile" id="sidebar">
+            <!-- ВИПРАВЛЕНО: додано lg:w-1/4, щоб на мобільному ширина не фіксувалась 25% -->
+            <aside class="sidebar sidebar--mobile lg:w-1/4" id="sidebar">
                 <button class="sidebar__close" id="sidebarClose">&times;</button>
                 <form method="get" id="filterForm">
                     <!-- Brands Filter -->
@@ -455,12 +540,25 @@
                         </ul>
                     </div>
 
-                    <!-- Price Filter -->
+                    <!-- Price Filter (ВИПРАВЛЕНИЙ) -->
                     <div class="sidebar__section">
                         <h3 class="sidebar__title">ЦІНА</h3>
                         <div class="price-inputs">
-                            <input type="number" class="price-input" placeholder="Від" name="price_min" value="{{ request.GET.price_min }}">
-                            <input type="number" class="price-input" placeholder="До" name="price_max" value="{{ request.GET.price_max }}">
+                            <input type="number"
+                                   class="price-input"
+                                   placeholder="Від"
+                                   name="price_min"
+                                   value="{{ request.GET.price_min }}"
+                                   min="0">
+
+                            <span class="price-separator">&mdash;</span>
+
+                            <input type="number"
+                                   class="price-input"
+                                   placeholder="До"
+                                   name="price_max"
+                                   value="{{ request.GET.price_max }}"
+                                   min="0">
                         </div>
                     </div>
 
@@ -518,16 +616,14 @@
                 <div class="products-grid">
                     {% for product in products %}
                     <div class="product-card">
-                        <!-- Badges (Top Left) -->
+                        <!-- Badges -->
                         <div class="product-card__badges">
                             {% if product.status_discount %}
                                 <span class="badge badge--sale">SALE</span>
                             {% endif %}
-                            <!-- Здесь можно добавить логику для TOP, если есть в модели -->
-                            <!-- <span class="badge badge--top">TOP</span> -->
                         </div>
 
-                        <!-- Favorite Heart (Top Right) -->
+                        <!-- Favorite -->
                         <button class="product-card__favorite" title="Додати в обране">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
@@ -541,10 +637,8 @@
 
                         <!-- Content -->
                         <div class="product-card__content">
-                            <!-- SKU / Артикул (Эмуляция, если поля нет в модели, используем ID) -->
                             <div class="product-card__sku">Артикул: Z{{ product.id }}.7.1.0{{ forloop.counter }}</div>
 
-                            <!-- Status -->
                             <div class="product-card__status">
                                 {% if product.in_stock %}
                                     <span class="status-text--green">Є в наявності</span>
@@ -553,12 +647,11 @@
                                 {% endif %}
                             </div>
 
-                            <!-- Title -->
                             <a href="{% url 'main:detail_page' product.slug %}" class="product-card__title" title="{{ product.name }}">
                                 {{ product.name }}
                             </a>
 
-                            <!-- Footer: Price & Button -->
+                            <!-- Footer -->
                             <div class="product-card__footer">
                                 <div class="price-box">
                                     {% if product.status_discount and product.discount_price %}
@@ -615,7 +708,6 @@
 </section>
 
 <script>
-// Scripts for brand search and mobile filters
 document.getElementById('brandSearch')?.addEventListener('input', function(e) {
     const searchTerm = e.target.value.toLowerCase();
     document.querySelectorAll('.brand-filter-item').forEach(item => {
@@ -633,12 +725,14 @@ if (mobileBtn) {
     mobileBtn.addEventListener('click', () => {
         sidebar.classList.add('active');
         overlay.classList.add('filters-overlay--active');
+        document.body.style.overflow = 'hidden'; // Блокуємо прокрутку сторінки
     });
 }
 
 const closeSidebar = () => {
     sidebar.classList.remove('active');
     overlay.classList.remove('filters-overlay--active');
+    document.body.style.overflow = ''; // Відновлюємо прокрутку
 };
 
 if (closeBtn) closeBtn.addEventListener('click', closeSidebar);

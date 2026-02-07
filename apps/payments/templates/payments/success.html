@@ -1,7 +1,7 @@
 {% extends 'main/base.html' %}
 {% load static %}
 
-{% block title %}BulavaArms - Замовлення оплачено{% endblock %}
+{% block title %}BulavaArms - Оплата завершена{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -21,7 +21,6 @@
         text-align: center;
     }
 
-    /* Checkmark animation */
     .success-icon {
         width: 90px;
         height: 90px;
@@ -40,6 +39,10 @@
     }
     .success-icon svg { width: 48px; height: 48px; color: white; }
 
+    .success-icon--processing {
+        background: linear-gradient(135deg, #ffc107, #ff9800);
+    }
+
     .success-title {
         font-size: 1.9rem;
         font-weight: 800;
@@ -52,7 +55,6 @@
         margin-bottom: 2rem;
     }
 
-    /* Order details table */
     .order-details {
         text-align: left;
         margin-bottom: 1.5rem;
@@ -90,7 +92,6 @@
     .order-details__name { font-weight: 500; }
     .order-details__qty { color: #888; font-size: 0.82rem; }
 
-    /* Info badges */
     .info-row {
         display: flex;
         justify-content: center;
@@ -110,7 +111,6 @@
     }
     .info-badge svg { width: 18px; height: 18px; color: #495057; }
 
-    /* Buttons */
     .btn-group {
         display: flex;
         gap: 1rem;
@@ -145,7 +145,6 @@
     }
     .btn--secondary:hover { background: #e2e2e2; }
 
-    /* Order number highlight */
     .order-number-box {
         background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
         border-radius: 8px;
@@ -155,6 +154,28 @@
         font-weight: 700;
         color: #2e7d32;
         font-size: 0.95rem;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.35rem 0.85rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .status-badge--paid {
+        background: #d4edda;
+        color: #155724;
+    }
+    .status-badge--processing {
+        background: #fff3cd;
+        color: #856404;
+    }
+    .status-badge--pending {
+        background: #d1ecf1;
+        color: #0c5460;
     }
 
     @media (max-width: 600px) {
@@ -171,30 +192,60 @@
     <div class="container mx-auto px-4">
         <div class="success-card">
 
-            <!-- Green checkmark -->
+            <!-- Icon (зеленый checkmark или оранжевый processing) -->
+            {% if order.status == 'paid' %}
             <div class="success-icon">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
                 </svg>
             </div>
-
             <h1 class="success-title">Оплата успішна!</h1>
             <p class="success-subtitle">Ваше замовлення прийнято до обробки</p>
+            {% elif order.status == 'processing' %}
+            <div class="success-icon success-icon--processing">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <h1 class="success-title">Оплата в обробці</h1>
+            <p class="success-subtitle">Очікуємо підтвердження від банку</p>
+            {% else %}
+            <div class="success-icon success-icon--processing">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <h1 class="success-title">Замовлення створено</h1>
+            <p class="success-subtitle">Очікуємо оплату</p>
+            {% endif %}
 
             <!-- Order number -->
             <div class="order-number-box">
-                Замовлення № {{ order.id }}
+                Замовлення № {{ order.order_id }}
+            </div>
+
+            <!-- Status badge -->
+            <div style="margin-bottom:1.5rem;">
+                {% if order.status == 'paid' %}
+                <span class="status-badge status-badge--paid">Оплачено</span>
+                {% elif order.status == 'processing' %}
+                <span class="status-badge status-badge--processing">В обробці</span>
+                {% else %}
+                <span class="status-badge status-badge--pending">Очікування</span>
+                {% endif %}
             </div>
 
             <!-- Info badges -->
             <div class="info-row">
+                {% if order.email %}
                 <div class="info-badge">
                     <svg fill="currentColor" viewBox="0 0 20 20">
                         <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
                         <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
                     </svg>
-                    Підтверджено на: {{ order.email|default:"email" }}
+                    {{ order.email }}
                 </div>
+                {% endif %}
                 <div class="info-badge">
                     <svg fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
@@ -228,15 +279,17 @@
                 {% endif %}
 
                 <div class="order-details__line order-details__line--total">
-                    <span>Оплачено</span>
+                    <span>{% if order.status == 'paid' %}Оплачено{% else %}До оплати{% endif %}</span>
                     <span>{{ order.total }} ₴</span>
                 </div>
             </div>
 
-            <!-- Stripe session ref (hidden, for support) -->
+            <!-- LiqPay payment ref -->
+            {% if order.liqpay_payment_id %}
             <p style="font-size:0.72rem; color:#bbb; margin-bottom:0;">
-                Ref: {{ order.stripe_session_id }}
+                LiqPay Payment ID: {{ order.liqpay_payment_id }}
             </p>
+            {% endif %}
 
             <!-- Action buttons -->
             <div class="btn-group">
@@ -250,6 +303,12 @@
                     Головна сторінка
                 </a>
             </div>
+
+            {% if order.status == 'processing' %}
+            <p style="font-size:0.85rem; color:#856404; margin-top:1.5rem; background:#fff3cd; padding:1rem; border-radius:8px;">
+                <strong>Увага:</strong> Оплата ще обробляється банком. Ми відправимо підтвердження на email як тільки платіж буде завершено.
+            </p>
+            {% endif %}
 
         </div>
     </div>

@@ -86,12 +86,12 @@
         gap: 0.5rem;
     }
     .btn--primary {
-        background: linear-gradient(135deg, #6772e5, #5a67d8);
+        background: linear-gradient(135deg, #7CB342, #558B2F);
         color: white;
     }
     .btn--primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 18px rgba(103,114,229,0.4);
+        box-shadow: 0 6px 18px rgba(124,179,66,0.4);
     }
     .btn--secondary {
         background: #f0f0f0;
@@ -128,21 +128,20 @@
                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                 </svg>
                 <div>
-                    Товари залишаються в вашому кошику. Ви можете повернутися до оплаті в будь-який час, доки сесія активна (обмеження: 24 год.).
+                    Товари залишаються в вашому кошику. Ви можете повернутися до оформлення в будь-який час.
                 </div>
             </div>
 
             <!-- Buttons -->
             <div class="btn-group">
-                <a href="{% url 'cart:checkout' %}" class="btn btn--primary">
+                <a href="{% url 'cart:cart_detail' %}" class="btn btn--primary">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px;height:18px;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m-2.4-2H1M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17M17 13a2 2 0 100 4 2 2 0 000-4zM9 19a2 2 0 11-4 0 2 2 0 014 0z"/>
                     </svg>
-                    Повернутись до оплаті
+                    Повернутись до кошика
                 </a>
-                <a href="{% url 'cart:cart_detail' %}" class="btn btn--secondary">
-                    Кошик
+                <a href="{% url 'main:catalog' %}" class="btn btn--secondary">
+                    Каталог
                 </a>
             </div>
 

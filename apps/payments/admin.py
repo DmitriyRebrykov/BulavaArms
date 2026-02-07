@@ -10,21 +10,21 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'email', 'status', 'total', 'created_at', 'stripe_session_id')
+    list_display = ('order_id', 'email', 'status', 'total', 'created_at')
     list_filter = ('status', 'created_at')
-    search_fields = ('id', 'email', 'stripe_session_id', 'stripe_payment_intent')
-    readonly_fields = ('stripe_session_id', 'stripe_payment_intent', 'created_at', 'updated_at')
+    search_fields = ('order_id', 'email', 'phone', 'liqpay_payment_id', 'liqpay_order_id')
+    readonly_fields = ('order_id', 'liqpay_payment_id', 'liqpay_order_id', 'created_at', 'updated_at')
     ordering = ('-created_at',)
 
     fieldsets = (
         ('Заказ', {
-            'fields': ('id', 'status', 'email')
+            'fields': ('order_id', 'status', 'email', 'phone')
         }),
         ('Финансы', {
             'fields': ('subtotal', 'discount', 'total')
         }),
-        ('Stripe', {
-            'fields': ('stripe_session_id', 'stripe_payment_intent'),
+        ('LiqPay', {
+            'fields': ('liqpay_payment_id', 'liqpay_order_id'),
             'classes': ('collapse',)
         }),
         ('Даты', {
