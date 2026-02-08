@@ -65,6 +65,115 @@
         border-bottom: 2px solid #f0f0f0;
     }
 
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #0c0d0e;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+    .form-label .required {
+        color: #ef4444;
+        margin-left: 0.25rem;
+    }
+    .form-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+    .form-input:focus {
+        outline: none;
+        border-color: #495057;
+        box-shadow: 0 0 0 3px rgba(73, 80, 87, 0.1);
+    }
+    .form-input.error {
+        border-color: #ef4444;
+    }
+    .form-error {
+        color: #ef4444;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+    }
+    .form-grid--full {
+        grid-column: span 2;
+    }
+
+    .auth-notice {
+        background: #fff8e1;
+        border: 1px solid #ffe082;
+        border-radius: 10px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: start;
+        gap: 1rem;
+    }
+    .auth-notice svg {
+        width: 24px;
+        height: 24px;
+        color: #f59e0b;
+        flex-shrink: 0;
+        margin-top: 0.125rem;
+    }
+    .auth-notice__content {
+        flex: 1;
+    }
+    .auth-notice__title {
+        font-weight: 700;
+        color: #795548;
+        margin-bottom: 0.5rem;
+    }
+    .auth-notice__text {
+        color: #795548;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+    .auth-notice__actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+    .auth-notice__btn {
+        padding: 0.5rem 1.25rem;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .auth-notice__btn--primary {
+        background: #f59e0b;
+        color: white;
+    }
+    .auth-notice__btn--primary:hover {
+        background: #d97706;
+    }
+    .auth-notice__btn--secondary {
+        background: white;
+        color: #795548;
+        border: 1px solid #ffe082;
+    }
+    .auth-notice__btn--secondary:hover {
+        background: #fef9e5;
+    }
+
     .order-line {
         display: flex;
         align-items: center;
@@ -130,7 +239,7 @@
     }
     .pay-btn:active { transform: translateY(0); }
     .pay-btn svg { width: 22px; height: 22px; }
-    .pay-btn--loading {
+    .pay-btn:disabled {
         opacity: 0.7;
         cursor: not-allowed;
         pointer-events: none;
@@ -178,38 +287,20 @@
         .checkout-card { padding: 1.25rem; }
         .order-line { flex-wrap: wrap; }
         .order-line__img { width: 60px; height: 60px; }
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        .form-grid--full {
+            grid-column: span 1;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <section class="checkout-section">
-    <div class="container mx-auto px-4" style="max-width: 680px;">
+    <div class="container mx-auto px-4" style="max-width: 900px;">
 
-        <!-- Breadcrumb -->
-        <nav class="text-sm text-gray-500 mb-4">
-            <a href="{% url 'main:main_page' %}" class="hover:text-gray-700">Головна</a> >
-            <a href="{% url 'cart:cart_detail' %}" class="hover:text-gray-700">Кошик</a> >
-            Оформлення
-        </nav>
-
-        <!-- Steps -->
-        <div class="steps-indicator">
-            <div class="step step--done">
-                <div class="step-number">✓</div>
-                <div class="step-label">Кошик</div>
-            </div>
-            <div class="step-arrow">→</div>
-            <div class="step step--active">
-                <div class="step-number">2</div>
-                <div class="step-label">Оформлення</div>
-            </div>
-            <div class="step-arrow">→</div>
-            <div class="step">
-                <div class="step-number">3</div>
-                <div class="step-label">Оплата</div>
-            </div>
-        </div>
 
         <h1 class="text-3xl font-bold mb-6 text-gray-900">Оформлення замовлення</h1>
 
@@ -226,107 +317,332 @@
             Назад до кошика
         </a>
 
-        <!-- БЛОК 1: Товары -->
-        <div class="checkout-card">
-            <h2 class="checkout-card__title">Товари в замовленні</h2>
-            {% for item in cart_items %}
-            <div class="order-line">
-                <div class="order-line__img"
-                     {% if item.product.main_image %}style="background-image: url('{{ item.product.main_image.url }}')"{% endif %}>
+        <!-- Auth Notice for Non-Logged In Users -->
+        {% if not user.is_authenticated %}
+        <div class="auth-notice">
+            <svg fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+            <div class="auth-notice__content">
+                <div class="auth-notice__title">Є акаунт? Увійдіть для швидшого оформлення!</div>
+                <div class="auth-notice__text">
+                    Увійдіть до свого облікового запису для автоматичного заповнення контактних даних та адреси доставки.
                 </div>
-                <div class="order-line__info">
-                    <div class="order-line__name">{{ item.product.name }}</div>
-                    <div class="order-line__meta">
-                        Кількість: {{ item.quantity }}
-                        {% if item.product.caliber %} • Калібр: {{ item.product.caliber }}{% endif %}
+                <div class="auth-notice__actions">
+                    <a href="{% url 'users:login' %}?next={{ request.path }}" class="auth-notice__btn auth-notice__btn--primary">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+                        Увійти
+                    </a>
+                    <a href="{% url 'users:register' %}?next={{ request.path }}" class="auth-notice__btn auth-notice__btn--secondary">
+                        Зареєструватися
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+                <div class="checkout-card">
+                    <h2 class="checkout-card__title">Контактна інформація</h2>
+                    <form id="checkoutForm" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="order_id" value="{{ order.order_id }}">
+
+                        <div class="form-grid">
+                            <div class="form-group form-grid--full">
+                                <label for="email" class="form-label">
+                                    Email<span class="required">*</span>
+                                </label>
+                                <input type="email"
+                                       id="email"
+                                       name="email"
+                                       class="form-input"
+                                       value="{% if user.is_authenticated %}{{ user.email }}{% endif %}"
+                                       required
+                                       placeholder="example@mail.com">
+                                <div class="form-error hidden" id="email-error">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                                    <span>Введіть коректний email</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="first_name" class="form-label">
+                                    Ім'я<span class="required">*</span>
+                                </label>
+                                <input type="text"
+                                       id="first_name"
+                                       name="first_name"
+                                       class="form-input"
+                                       value="{% if user.is_authenticated %}{{ user.first_name }}{% endif %}"
+                                       required
+                                       placeholder="Іван">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="last_name" class="form-label">
+                                    Прізвище<span class="required">*</span>
+                                </label>
+                                <input type="text"
+                                       id="last_name"
+                                       name="last_name"
+                                       class="form-input"
+                                       value="{% if user.is_authenticated %}{{ user.last_name }}{% endif %}"
+                                       required
+                                       placeholder="Петренко">
+                            </div>
+
+                            <div class="form-group form-grid--full">
+                                <label for="phone" class="form-label">
+                                    Телефон<span class="required">*</span>
+                                </label>
+                                <input type="tel"
+                                       id="phone"
+                                       name="phone"
+                                       class="form-input"
+                                       value="{% if user.is_authenticated %}{{ user.phone }}{% endif %}"
+                                       required
+                                       placeholder="+380501234567"
+                                       pattern="^\+?[0-9]{10,15}$">
+                                <div class="form-error hidden" id="phone-error">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                                    <span>Введіть коректний номер телефону</span>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Delivery Information -->
+                <div class="checkout-card">
+                    <h2 class="checkout-card__title">Інформація про доставку</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="city" class="form-label">
+                                Місто<span class="required">*</span>
+                            </label>
+                            <input type="text"
+                                   id="city"
+                                   name="city"
+                                   form="checkoutForm"
+                                   class="form-input"
+                                   value="{% if user.is_authenticated %}{{ user.city }}{% endif %}"
+                                   required
+                                   placeholder="Київ">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="postal_code" class="form-label">
+                                Поштовий індекс
+                            </label>
+                            <input type="text"
+                                   id="postal_code"
+                                   name="postal_code"
+                                   form="checkoutForm"
+                                   class="form-input"
+                                   value="{% if user.is_authenticated %}{{ user.postal_code }}{% endif %}"
+                                   placeholder="01001">
+                        </div>
+
+                        <div class="form-group form-grid--full">
+                            <label for="address" class="form-label">
+                                Адреса<span class="required">*</span>
+                            </label>
+                            <textarea id="address"
+                                      name="address"
+                                      form="checkoutForm"
+                                      class="form-input"
+                                      rows="3"
+                                      required
+                                      placeholder="вул. Хрещатик, 1, кв. 10">{% if user.is_authenticated %}{{ user.address }}{% endif %}</textarea>
+                        </div>
+
+                        <div class="form-group form-grid--full">
+                            <label for="delivery_notes" class="form-label">
+                                Коментар до замовлення (необов'язково)
+                            </label>
+                            <textarea id="delivery_notes"
+                                      name="delivery_notes"
+                                      form="checkoutForm"
+                                      class="form-input"
+                                      rows="2"
+                                      placeholder="Додаткова інформація для кур'єра"></textarea>
+                        </div>
                     </div>
                 </div>
-                <div class="order-line__price">{{ item.total_price }} ₴</div>
-            </div>
-            {% endfor %}
-        </div>
-
-        <!-- БЛОК 2: Итог + Кнопка оплаты LiqPay -->
-        <div class="checkout-card">
-            <h2 class="checkout-card__title">Разом</h2>
-
-            <div class="summary-row">
-                <span>Товари ({{ cart_items_count }}):</span>
-                <span>{{ cart_subtotal }} ₴</span>
             </div>
 
-            {% if cart_discount > 0 %}
-            <div class="summary-row summary-row--discount">
-                <span>Знижка:</span>
-                <span>−{{ cart_discount }} ₴</span>
-            </div>
-            {% endif %}
+            <!-- Right Column: Order Summary -->
+            <div>
+                <!-- Order Items -->
+                <div class="checkout-card">
+                    <h2 class="checkout-card__title">Товари в замовленні</h2>
+                    {% for item in cart_items %}
+                    <div class="order-line">
+                        <div class="order-line__img"
+                             {% if item.product.main_image %}style="background-image: url('{{ item.product.main_image.url }}')"{% endif %}>
+                        </div>
+                        <div class="order-line__info">
+                            <div class="order-line__name">{{ item.product.name }}</div>
+                            <div class="order-line__meta">
+                                Кількість: {{ item.quantity }}
+                                {% if item.product.caliber %} • Калібр: {{ item.product.caliber }}{% endif %}
+                            </div>
+                        </div>
+                        <div class="order-line__price">{{ item.total_price }} ₴</div>
+                    </div>
+                    {% endfor %}
+                </div>
 
-            <div class="summary-row">
-                <span>Доставка:</span>
-                <span>
-                    {% if cart_subtotal >= 50000 %}
-                        <span style="color:#28a745; font-weight:600;">Безкоштовно</span>
-                    {% else %}
-                        За тарифами перевізника
+                <!-- Payment Summary -->
+                <div class="checkout-card">
+                    <h2 class="checkout-card__title">Разом</h2>
+
+                    <div class="summary-row">
+                        <span>Товари ({{ cart_items_count }}):</span>
+                        <span>{{ cart_subtotal }} ₴</span>
+                    </div>
+
+                    {% if cart_discount > 0 %}
+                    <div class="summary-row summary-row--discount">
+                        <span>Знижка:</span>
+                        <span>−{{ cart_discount }} ₴</span>
+                    </div>
                     {% endif %}
-                </span>
+
+                    <div class="summary-row">
+                        <span>Доставка:</span>
+                        <span>
+                            {% if cart_subtotal >= 50000 %}
+                                <span style="color:#28a745; font-weight:600;">Безкоштовно</span>
+                            {% else %}
+                                За тарифами перевізника
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <div class="summary-row summary-row--total">
+                        <span>До сплати:</span>
+                        <span>{{ cart_total }} ₴</span>
+                    </div>
+
+                    <!-- Payment Button -->
+                    <button type="button" class="pay-btn" id="payBtn" onclick="submitCheckout()">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                        </svg>
+                        Оплатити {{ cart_total }} ₴
+                    </button>
+
+                    <!-- Security badges -->
+                    <div class="security-badges">
+                        <span>
+                            <svg fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                            </svg>
+                            256-bit SSL
+                        </span>
+                        <span>
+                            <svg fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            LiqPay
+                        </span>
+                        <span>
+                            <svg fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+                            </svg>
+                            Visa / Mastercard
+                        </span>
+                    </div>
+
+                    <p style="font-size:0.75rem; color:#999; text-align:center; margin-top:1rem;">
+                        Натискаючи кнопку оплати, ви погоджуєтесь з умовами публічної оферти
+                    </p>
+                </div>
             </div>
-
-            <div class="summary-row summary-row--total">
-                <span>До сплати:</span>
-                <span>{{ cart_total }} ₴</span>
-            </div>
-
-            <!-- ФОРМА ОПЛАТЫ LIQPAY -->
-            <form method="POST" action="{{ liqpay_action_url }}" accept-charset="utf-8" id="liqpayForm">
-                <input type="hidden" name="data" value="{{ liqpay_data }}">
-                <input type="hidden" name="signature" value="{{ liqpay_signature }}">
-
-                <button type="submit" class="pay-btn" id="payBtn">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                    </svg>
-                    Оплатити {{ cart_total }} ₴ через LiqPay
-                </button>
-            </form>
-
-            <!-- Security badges -->
-            <div class="security-badges">
-                <span>
-                    <svg fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-                    </svg>
-                    256-bit SSL
-                </span>
-                <span>
-                    <svg fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                    </svg>
-                    LiqPay
-                </span>
-                <span>
-                    <svg fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
-                    </svg>
-                    Visa / Mastercard
-                </span>
-            </div>
-
-            <p style="font-size:0.75rem; color:#999; text-align:center; margin-top:1rem;">
-                Натискаючи кнопку оплати, ви будете перенаправлені на безпечну сторінку LiqPay
-            </p>
         </div>
-
     </div>
 </section>
 
+<!-- Hidden LiqPay Form -->
+<form method="POST" action="{{ liqpay_action_url }}" accept-charset="utf-8" id="liqpayForm" style="display:none;">
+    <input type="hidden" name="data" value="{{ liqpay_data }}">
+    <input type="hidden" name="signature" value="{{ liqpay_signature }}">
+</form>
+
 <script>
-document.getElementById('liqpayForm').addEventListener('submit', function() {
+function submitCheckout() {
+    const form = document.getElementById('checkoutForm');
+
+    // Validate form
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
+    // Get form data
+    const formData = new FormData(form);
+
+    // Show loading state
     const btn = document.getElementById('payBtn');
-    btn.classList.add('pay-btn--loading');
-    btn.innerHTML = '<span>Переходимо до оплаті...</span>';
+    btn.disabled = true;
+    btn.innerHTML = '<span>Обробка...</span>';
+
+    // Submit form data first to save customer info
+    fetch('{% url "payments:checkout" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        body: formData
+    })
+    .then(response => {
+        if (response.ok) {
+            // Then submit to LiqPay
+            document.getElementById('liqpayForm').submit();
+        } else {
+            throw new Error('Помилка обробки замовлення');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Виникла помилка при оформленні замовлення. Спробуйте ще раз.');
+        btn.disabled = false;
+        btn.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg> Оплатити {{ cart_total }} ₴';
+    });
+}
+
+// Email validation
+document.getElementById('email')?.addEventListener('blur', function() {
+    const email = this.value;
+    const emailError = document.getElementById('email-error');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+        this.classList.add('error');
+        emailError.classList.remove('hidden');
+    } else {
+        this.classList.remove('error');
+        emailError.classList.add('hidden');
+    }
+});
+
+// Phone validation
+document.getElementById('phone')?.addEventListener('blur', function() {
+    const phone = this.value;
+    const phoneError = document.getElementById('phone-error');
+    const phoneRegex = /^\+?[0-9]{10,15}$/;
+
+    if (!phoneRegex.test(phone)) {
+        this.classList.add('error');
+        phoneError.classList.remove('hidden');
+    } else {
+        this.classList.remove('error');
+        phoneError.classList.add('hidden');
+    }
 });
 </script>
 {% endblock %}

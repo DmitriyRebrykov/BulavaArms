@@ -1,20 +1,20 @@
-# cart/views.py
+# payments/views.py
 import json
-import logging
 import uuid
 
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.http import JsonResponse, HttpResponse
-from django.views.decorators.http import require_POST, require_GET
+from django.http import HttpResponse
+from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.urls import reverse
-from apps.main.models import Product
 from apps.cart.cart import Cart
 from .models import Order, OrderItem
 from .liqpay_utils import LiqPayAPI
+import logging
 
+logger = logging.getLogger(__name__)
 
 
 def checkout(request):
@@ -28,6 +28,33 @@ def checkout(request):
         messages.info(request, 'Кошик порожній.')
         return redirect('cart:cart_detail')
 
+    # POST - сохранение данных доставки перед оплатой
+    if request.method == 'POST':
+        # Получаем order_id из формы
+        order_id = request.POST.get('order_id')
+
+        try:
+            order = Order.objects.get(order_id=order_id)
+
+            # Сохраняем контактные данные
+            order.email = request.POST.get('email', '')
+            order.phone = request.POST.get('phone', '')
+            order.first_name = request.POST.get('first_name', '')
+            order.last_name = request.POST.get('last_name', '')
+
+            # Сохраняем адрес доставки
+            order.city = request.POST.get('city', '')
+            order.postal_code = request.POST.get('postal_code', '')
+            order.address = request.POST.get('address', '')
+            order.delivery_notes = request.POST.get('delivery_notes', '')
+
+            order.save()
+
+            return HttpResponse(status=200)
+        except Order.DoesNotExist:
+            return HttpResponse(status=404)
+
+    # GET - отображение формы
     # Генерируем уникальный order_id
     order_id = f'ORDER-{uuid.uuid4().hex[:12].upper()}'
 
@@ -43,6 +70,17 @@ def checkout(request):
         total=total,
         status='pending',
     )
+
+    # Если пользователь авторизован, предзаполняем данные
+    if request.user.is_authenticated:
+        order.email = request.user.email
+        order.phone = request.user.phone or ''
+        order.first_name = request.user.first_name
+        order.last_name = request.user.last_name
+        order.city = request.user.city or ''
+        order.postal_code = request.user.postal_code or ''
+        order.address = request.user.address or ''
+        order.save()
 
     # Создаём позиции заказа
     for item in cart:

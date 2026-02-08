@@ -23,6 +23,14 @@ class Order(models.Model):
     # Контактные данные
     email = models.EmailField(blank=True, verbose_name='Email покупателя')
     phone = models.CharField(max_length=20, blank=True, verbose_name='Телефон')
+    first_name = models.CharField(max_length=150, blank=True, verbose_name="Ім'я")
+    last_name = models.CharField(max_length=150, blank=True, verbose_name='Прізвище')
+
+    # Адрес доставки
+    city = models.CharField(max_length=100, blank=True, verbose_name='Місто')
+    postal_code = models.CharField(max_length=20, blank=True, verbose_name='Поштовий індекс')
+    address = models.TextField(blank=True, verbose_name='Адреса')
+    delivery_notes = models.TextField(blank=True, verbose_name='Коментар до замовлення')
 
     # Финансы (в гривнах)
     subtotal = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Сумма товаров')
@@ -41,6 +49,12 @@ class Order(models.Model):
 
     def __str__(self):
         return f'Заказ #{self.order_id} — {self.get_status_display()} — {self.total} ₴'
+
+    def get_customer_name(self):
+        """Получить полное имя покупателя"""
+        if self.first_name and self.last_name:
+            return f'{self.first_name} {self.last_name}'
+        return self.email or 'Гість'
 
 
 class OrderItem(models.Model):

@@ -523,22 +523,22 @@
                     </div>
 
                     <!-- Caliber Filter -->
-                    <div class="sidebar__section">
-                        <h3 class="sidebar__title">КАЛІБР</h3>
-                        <ul class="filter-list">
-                            {% for caliber in calibers %}
-                            <li class="filter-item">
-                                <input type="checkbox"
-                                       name="caliber"
-                                       value="{{ caliber.name }}"
-                                       id="cal_{{ forloop.counter }}"
-                                       {% if caliber.name in request.GET.getlist.caliber %}checked{% endif %}>
-                                <label for="cal_{{ forloop.counter }}" class="filter-item__label ml-2">{{ caliber.name }}</label>
-                                <span class="text-xs text-gray-500 ml-auto">({{ caliber.count }})</span>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
+<!--                    <div class="sidebar__section">-->
+<!--                        <h3 class="sidebar__title">КАЛІБР</h3>-->
+<!--                        <ul class="filter-list">-->
+<!--                            {% for caliber in calibers %}-->
+<!--                            <li class="filter-item">-->
+<!--                                <input type="checkbox"-->
+<!--                                       name="caliber"-->
+<!--                                       value="{{ caliber.name }}"-->
+<!--                                       id="cal_{{ forloop.counter }}"-->
+<!--                                       {% if caliber.name in request.GET.getlist.caliber %}checked{% endif %}>-->
+<!--                                <label for="cal_{{ forloop.counter }}" class="filter-item__label ml-2">{{ caliber.name }}</label>-->
+<!--                                <span class="text-xs text-gray-500 ml-auto">({{ caliber.count }})</span>-->
+<!--                            </li>-->
+<!--                            {% endfor %}-->
+<!--                        </ul>-->
+<!--                    </div>-->
 
                     <!-- Price Filter (ВИПРАВЛЕНИЙ) -->
                     <div class="sidebar__section">
