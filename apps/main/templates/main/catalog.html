@@ -1,683 +1,597 @@
+
 {% extends 'main/base.html' %}
 {% load static %}
 
 {% block title %}Каталог - BulavaArms{% endblock %}
 
 {% block extra_css %}
-/* --- ЗАГАЛЬНІ СТИЛІ КАТАЛОГУ --- */
-.catalog__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
+<style>
+    /* --- ОСНОВНИЙ КОНТЕЙНЕР --- */
+    body {
+        background-color: #f8f9fa; /* Світло-сірий фон для контрасту */
+        color: #212529;
+    }
 
-.catalog__title {
-    font-size: 2rem;
-    font-weight: 800;
-    color: #0c0d0e;
-    margin-bottom: 0.5rem;
-}
+    /* Flex-обгортка для сайдбару та контенту */
+    .catalog-wrapper {
+        display: flex;
+        gap: 30px;
+        align-items: flex-start;
+        position: relative;
+    }
 
-.catalog__count {
-    color: #495057;
-    font-size: 1rem;
-    font-weight: 500;
-}
-
-.catalog__controls {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.sort-select {
-    padding: 0.5rem 1rem;
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
-    background: white;
-    cursor: pointer;
-    font-size: 0.9rem;
-}
-
-/* Сайдбар (десктоп) */
-.sidebar {
-    background: white;
-    border-radius: 16px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-    height: fit-content;
-    position: sticky;
-    top: 2rem;
-}
-
-.sidebar__section {
-    margin-bottom: 1.5rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid #e2e8f0;
-}
-
-.sidebar__section:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
-}
-
-.sidebar__title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #0c0d0e;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.filter-list {
-    list-style: none;
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-.filter-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0;
-    cursor: pointer;
-}
-
-.sidebar__search {
-    width: 100%;
-    padding: 0.6rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    margin-bottom: 10px;
-}
-
-/* --- ВИПРАВЛЕНИЙ ФІЛЬТР ЦІНИ --- */
-.price-inputs {
-    display: flex;
-    align-items: center; /* Вирівнювання по центру вертикально */
-    justify-content: space-between;
-    gap: 8px;
-    margin-bottom: 1rem;
-}
-
-.price-input {
-    width: 100%;
-    padding: 8px 10px;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    text-align: left; /* Текст зліва, щоб не стрибав */
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    background: #fff;
-}
-
-.price-input:focus {
-    border-color: #343a40;
-    box-shadow: 0 0 0 2px rgba(52, 58, 64, 0.1);
-}
-
-.price-separator {
-    color: #64748b;
-    font-weight: 500;
-    user-select: none;
-}
-
-/* Прибираємо стандартні стрілочки input number (Chrome, Safari, Edge) */
-.price-input::-webkit-outer-spin-button,
-.price-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-/* Прибираємо стрілочки для Firefox */
-.price-input[type=number] {
-    -moz-appearance: textfield;
-}
-/* -------------------------------- */
-
-.filter-actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 1rem;
-}
-
-.filter-btn {
-    flex: 1;
-    padding: 0.75rem;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: center;
-    text-decoration: none;
-}
-
-.filter-btn--apply {
-    background: #343a40;
-    color: white;
-}
-
-.filter-btn--reset {
-    background: #f1f5f9;
-    color: #64748b;
-}
-
-/* --- КАРТКИ ТОВАРІВ --- */
-.products-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 20px;
-}
-
-.product-card {
-    background: white;
-    border: 1px solid #eaebed;
-    border-radius: 4px;
-    position: relative;
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
-    display: flex;
-    flex-direction: column;
-    padding: 15px;
-    height: 100%;
-}
-
-.product-card:hover {
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    transform: translateY(-2px);
-    border-color: transparent;
-    z-index: 2;
-}
-
-.product-card__badges {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    z-index: 5;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.badge {
-    padding: 4px 8px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: white;
-    border-radius: 2px;
-}
-
-.badge--sale { background: #d9534f; }
-
-.product-card__favorite {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    z-index: 5;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #333;
-    opacity: 0.6;
-    transition: all 0.2s;
-    padding: 0;
-}
-
-.product-card__favorite:hover {
-    opacity: 1;
-    color: #d9534f;
-    transform: scale(1.1);
-}
-
-.product-card__image-link {
-    display: block;
-    width: 100%;
-    margin-bottom: 15px;
-    margin-top: 15px;
-}
-
-.product-card__image {
-    height: 180px;
-    width: 100%;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-}
-
-.product-card__content {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    text-align: left;
-}
-
-.product-card__sku {
-    font-size: 12px;
-    color: #999;
-    margin-bottom: 5px;
-}
-
-.product-card__status {
-    font-size: 13px;
-    font-weight: 500;
-    margin-bottom: 10px;
-}
-
-.status-text--green { color: #5da046; }
-.status-text--red { color: #d9534f; }
-
-.product-card__title {
-    font-size: 15px;
-    font-weight: 600;
-    color: #222;
-    line-height: 1.4;
-    margin-bottom: 15px;
-    text-decoration: none;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    height: 63px;
-}
-
-.product-card__title:hover {
-    color: #5da046;
-}
-
-.product-card__footer {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-top: auto;
-    padding-top: 10px;
-}
-
-.price-box {
-    display: flex;
-    flex-direction: column;
-}
-
-.price-box__old {
-    font-size: 13px;
-    text-decoration: line-through;
-    color: #999;
-    margin-bottom: 2px;
-}
-
-.price-box__current {
-    font-size: 20px;
-    font-weight: 700;
-    color: #333;
-}
-
-.price-currency {
-    font-size: 14px;
-    font-weight: 400;
-}
-
-.btn-buy-square {
-    width: 46px;
-    height: 46px;
-    background-color: #5f9e4e;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s;
-}
-
-.btn-buy-square:hover {
-    background-color: #4e8540;
-}
-
-.btn-buy-square svg {
-    width: 24px;
-    height: 24px;
-    color: white;
-}
-
-/* Pagination */
-.pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 3rem;
-}
-
-.pagination__btn {
-    padding: 0.75rem 1rem;
-    border: 1px solid #e2e8f0;
-    background: white;
-    border-radius: 8px;
-    cursor: pointer;
-    text-decoration: none;
-    color: #495057;
-}
-
-.pagination__btn--active {
-    background: #343a40;
-    color: white;
-    border-color: #343a40;
-}
-
-/* Базові стилі для мобільних елементів (приховані на десктопі) */
-.mobile-filter-btn { display: none; }
-.filters-overlay { display: none; }
-.sidebar__close { display: none; }
-
-/* --- МОБІЛЬНА ВЕРСІЯ (ВИПРАВЛЕНА) --- */
-@media (max-width: 1024px) {
-    .products-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
-}
-
-@media (max-width: 768px) {
-    .catalog__header { flex-direction: column; gap: 1rem; }
-
-    /* Приховуємо сайдбар за замовчуванням */
+    /* --- САЙДБАР (ЛІВА КОЛОНКА) --- */
     .sidebar {
-        display: none;
-    }
-
-    /* Кнопка "ФІЛЬТРИ" */
-    .mobile-filter-btn {
-        display: flex;
-        width: 100%;
-        padding: 1rem;
-        background: #343a40;
-        color: white;
-        border: none;
-        justify-content: center;
-        align-items: center;
+        width: 280px; /* Фіксована ширина */
+        flex-shrink: 0; /* Не стискається */
+        background: #fff;
         border-radius: 8px;
-        margin-bottom: 1.5rem;
-        font-weight: 600;
-        cursor: pointer;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid #e9ecef;
+        position: sticky;
+        top: 20px;
+        z-index: 10;
     }
 
-    /* Мобільний сайдбар (виїжджає) */
-    .sidebar--mobile {
-        display: block;
-        position: fixed;
-        top: 0;
-        left: -100%; /* Приховано за екраном */
-        width: 320px; /* Фіксована комфортна ширина */
-        max-width: 85%;
-        height: 100vh;
-        background: white;
-        z-index: 1000;
-        transition: left 0.3s ease-in-out;
-        padding: 25px 20px;
-        overflow-y: auto;
-        box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+    .sidebar__section {
+        margin-bottom: 25px;
+        padding-bottom: 25px;
+        border-bottom: 1px solid #e9ecef;
     }
 
-    .sidebar--mobile.active { left: 0; }
-
-    /* Поле пошуку бренду */
-    .sidebar__search {
-        padding: 10px;
+    .sidebar__section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
     }
 
-    /* Фон затемнення */
-    .filters-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.6);
-        z-index: 999;
-        backdrop-filter: blur(2px);
-    }
-
-    .filters-overlay--active { display: block; }
-
-    /* Кнопка закриття (хрестик) */
-    .sidebar__close {
+    .sidebar__title {
+        font-size: 14px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 15px;
         display: flex;
         align-items: center;
-        justify-content: center;
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        background: #f8f9fa;
-        border: 1px solid #e2e8f0;
-        border-radius: 50%;
-        width: 36px;
-        height: 36px;
-        font-size: 24px;
-        line-height: 1;
-        color: #333;
-        cursor: pointer;
-        transition: background 0.2s;
-    }
-
-    .sidebar__close:hover {
-        background: #e2e8f0;
+        gap: 8px;
         color: #000;
     }
 
-    /* Адаптація карток */
-    .products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .product-card { padding: 10px; }
-    .product-card__image { height: 140px; }
-    .product-card__title { font-size: 13px; height: 55px; }
-    .price-box__current { font-size: 16px; }
-    .btn-buy-square { width: 36px; height: 36px; }
-    .btn-buy-square svg { width: 18px; height: 18px; }
-}
+    .sidebar__title svg {
+        width: 18px;
+        height: 18px;
+        color: #495057;
+    }
+
+    .filter-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        max-height: 250px;
+        overflow-y: auto;
+    }
+
+    /* Скролбар для списків */
+    .filter-list::-webkit-scrollbar { width: 4px; }
+    .filter-list::-webkit-scrollbar-thumb { background-color: #dee2e6; border-radius: 4px; }
+
+    .filter-item {
+        display: flex;
+        align-items: center;
+        padding: 6px 0;
+        font-size: 14px;
+        color: #495057;
+        cursor: pointer;
+    }
+
+    .filter-item:hover { color: #000; }
+
+    .filter-item input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        margin-right: 10px;
+        accent-color: #212529;
+        cursor: pointer;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+    }
+
+    .sidebar__search {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        font-size: 13px;
+        margin-bottom: 10px;
+        outline: none;
+    }
+    .sidebar__search:focus { border-color: #212529; }
+
+    /* Inputs ціни */
+    .price-inputs {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .price-input {
+        width: 100%;
+        padding: 8px;
+        font-size: 14px;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        text-align: center;
+    }
+
+    .filter-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    .filter-btn {
+        padding: 10px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        text-align: center;
+        cursor: pointer;
+        border: none;
+        transition: 0.2s;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .filter-btn--apply { background: #212529; color: #fff; }
+    .filter-btn--apply:hover { background: #000; }
+    .filter-btn--reset { background: #e9ecef; color: #495057; }
+    .filter-btn--reset:hover { background: #dee2e6; }
+
+    /* --- ПРАВА КОЛОНКА (КОНТЕНТ) --- */
+    .catalog-content {
+        flex-grow: 1;
+        min-width: 0; /* Важливо для Grid всередині Flex */
+    }
+
+    .catalog__header {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        border: 1px solid #e9ecef;
+    }
+
+    .catalog__title {
+        font-size: 24px;
+        font-weight: 800;
+        margin: 0;
+        text-transform: uppercase;
+        line-height: 1.2;
+    }
+    .catalog__count { color: #868e96; font-size: 14px; margin-top: 4px; }
+
+    .sort-select {
+        padding: 8px 30px 8px 15px;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        font-size: 14px;
+        background-color: #fff;
+        cursor: pointer;
+        outline: none;
+    }
+
+    /* Сітка товарів */
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 20px;
+    }
+
+    .product-card {
+        background: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 15px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+        border-color: transparent;
+        z-index: 2;
+    }
+
+    .product-card__badges {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    .badge-sale {
+        background: #fa5252;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 4px;
+        text-transform: uppercase;
+    }
+
+    .product-card__fav {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: transparent;
+        border: none;
+        color: #adb5bd;
+        cursor: pointer;
+        z-index: 2;
+    }
+    .product-card__fav:hover { color: #fa5252; }
+
+    .product-card__img-wrapper {
+        height: 180px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+        overflow: hidden;
+    }
+    .product-card__img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .product-card__info {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-card__code {
+        font-size: 12px;
+        color: #adb5bd;
+        margin-bottom: 5px;
+    }
+
+    .product-card__name {
+        font-size: 15px;
+        font-weight: 600;
+        color: #212529;
+        text-decoration: none;
+        line-height: 1.4;
+        margin-bottom: 10px;
+        height: 42px; /* 2 рядки */
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+    .product-card__name:hover { color: #228be6; }
+
+    .product-card__stock {
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+    .text-green { color: #40c057; }
+    .text-red { color: #fa5252; }
+
+    .product-card__bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-top: auto;
+        padding-top: 15px;
+        border-top: 1px solid #f1f3f5;
+    }
+
+    .price-wrapper { display: flex; flex-direction: column; }
+    .old-price { text-decoration: line-through; color: #adb5bd; font-size: 13px; }
+    .current-price { font-size: 18px; font-weight: 700; color: #212529; }
+
+    .btn-cart {
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+        background: #212529;
+        color: #fff;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .btn-cart:hover { background: #495057; }
+    .btn-cart svg { width: 20px; height: 20px; }
+
+    /* Пагінація */
+    .pagination { display: flex; justify-content: center; gap: 5px; margin-top: 40px; }
+    .page-link {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        background: #fff;
+        color: #212529;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .page-link:hover { border-color: #212529; }
+    .page-link.active { background: #212529; color: #fff; border-color: #212529; }
+
+    /* Мобільні стилі */
+    .mobile-filter-toggle { display: none; }
+    .sidebar-close { display: none; }
+    .overlay { display: none; }
+
+    @media (max-width: 992px) {
+        .catalog-wrapper { display: block; }
+
+        .sidebar {
+            display: none; /* Приховуємо на мобільному, показуємо по кнопці */
+            position: fixed;
+            top: 0; left: 0;
+            height: 100vh;
+            width: 280px;
+            z-index: 1000;
+            overflow-y: auto;
+            border-radius: 0;
+        }
+
+        .sidebar.active { display: block; box-shadow: 10px 0 30px rgba(0,0,0,0.2); }
+
+        .mobile-filter-toggle {
+            display: flex;
+            width: 100%;
+            padding: 12px;
+            background: #212529;
+            color: #fff;
+            justify-content: center;
+            align-items: center;
+            font-weight: 700;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .sidebar-close {
+            display: block;
+            position: absolute;
+            top: 15px; right: 15px;
+            background: none; border: none;
+            font-size: 24px; cursor: pointer;
+        }
+
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 999;
+        }
+        .overlay.active { display: block; }
+
+        .products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .product-card { padding: 10px; }
+        .product-card__img-wrapper { height: 140px; }
+        .current-price { font-size: 16px; }
+        .btn-cart { width: 32px; height: 32px; }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<section class="catalog">
+<section class="py-8">
     <div class="container mx-auto px-4">
-        <!-- Mobile Filter Button -->
-        <button class="mobile-filter-btn" id="mobileFilterBtn">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
-            </svg>
-            ФІЛЬТРИ
+
+        <!-- Кнопка фільтрів (Мобільна) -->
+        <button class="mobile-filter-toggle" id="mobileFilterBtn">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+            Фільтри та Сортування
         </button>
 
-        <!-- Filters Overlay -->
-        <div class="filters-overlay" id="filtersOverlay"></div>
+        <!-- Затемнення фону для моб. меню -->
+        <div class="overlay" id="overlay"></div>
 
-        <div class="flex gap-6">
-            <!-- Sidebar Filters -->
-            <!-- ВИПРАВЛЕНО: додано lg:w-1/4, щоб на мобільному ширина не фіксувалась 25% -->
-            <aside class="sidebar sidebar--mobile lg:w-1/4" id="sidebar">
-                <button class="sidebar__close" id="sidebarClose">&times;</button>
+        <div class="catalog-wrapper">
+
+            <!-- ЛІВИЙ САЙДБАР (ФІЛЬТРИ) -->
+            <aside class="sidebar" id="sidebar">
+                <button class="sidebar-close" id="sidebarClose">&times;</button>
+
                 <form method="get" id="filterForm">
-                    <!-- Brands Filter -->
+
+                    <!-- КАТЕГОРІЇ -->
                     <div class="sidebar__section">
-                        <h3 class="sidebar__title">БРЕНД</h3>
-                        <input type="text" class="sidebar__search" placeholder="Пошук бренду..." id="brandSearch">
-                        <ul class="filter-list" id="brandList">
-                            {% for manufacturer in manufacturers %}
-                            <li class="filter-item brand-filter-item">
-                                <input type="checkbox"
-                                       name="manufacturer"
-                                       value="{{ manufacturer.name }}"
-                                       id="brand_{{ forloop.counter }}"
-                                       {% if manufacturer.name in request.GET.getlist.manufacturer %}checked{% endif %}>
-                                <label for="brand_{{ forloop.counter }}" class="filter-item__label ml-2">{{ manufacturer.name }}</label>
-                                <span class="text-xs text-gray-500 ml-auto">({{ manufacturer.count }})</span>
+                        <h3 class="sidebar__title">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+                            Категорії
+                        </h3>
+                        <ul class="filter-list">
+                            {% for category in categories %}
+                            <li class="filter-item">
+                                <input type="checkbox" name="category" value="{{ category.slug }}" id="cat_{{ category.id }}"
+                                       {% if category.slug in request.GET.getlist.category %}checked{% endif %}>
+                                <label for="cat_{{ category.id }}" style="flex:1">{{ category.name }}</label>
+                                <span style="color:#adb5bd; font-size:12px">({{ category.product_count }})</span>
                             </li>
                             {% endfor %}
                         </ul>
                     </div>
 
-                    <!-- Caliber Filter -->
-<!--                    <div class="sidebar__section">-->
-<!--                        <h3 class="sidebar__title">КАЛІБР</h3>-->
-<!--                        <ul class="filter-list">-->
-<!--                            {% for caliber in calibers %}-->
-<!--                            <li class="filter-item">-->
-<!--                                <input type="checkbox"-->
-<!--                                       name="caliber"-->
-<!--                                       value="{{ caliber.name }}"-->
-<!--                                       id="cal_{{ forloop.counter }}"-->
-<!--                                       {% if caliber.name in request.GET.getlist.caliber %}checked{% endif %}>-->
-<!--                                <label for="cal_{{ forloop.counter }}" class="filter-item__label ml-2">{{ caliber.name }}</label>-->
-<!--                                <span class="text-xs text-gray-500 ml-auto">({{ caliber.count }})</span>-->
-<!--                            </li>-->
-<!--                            {% endfor %}-->
-<!--                        </ul>-->
-<!--                    </div>-->
-
-                    <!-- Price Filter (ВИПРАВЛЕНИЙ) -->
+                    <!-- ЦІНА -->
                     <div class="sidebar__section">
-                        <h3 class="sidebar__title">ЦІНА</h3>
+                        <h3 class="sidebar__title">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Ціна
+                        </h3>
                         <div class="price-inputs">
-                            <input type="number"
-                                   class="price-input"
-                                   placeholder="Від"
-                                   name="price_min"
-                                   value="{{ request.GET.price_min }}"
-                                   min="0">
-
-                            <span class="price-separator">&mdash;</span>
-
-                            <input type="number"
-                                   class="price-input"
-                                   placeholder="До"
-                                   name="price_max"
-                                   value="{{ request.GET.price_max }}"
-                                   min="0">
+                            <input type="number" class="price-input" name="price_min" placeholder="Від" value="{{ request.GET.price_min }}" min="0">
+                            <span>-</span>
+                            <input type="number" class="price-input" name="price_max" placeholder="До" value="{{ request.GET.price_max }}" min="0">
                         </div>
                     </div>
 
-                    <!-- Status Filter -->
+                    <!-- БРЕНД -->
+                    {% if manufacturers %}
                     <div class="sidebar__section">
-                        <h3 class="sidebar__title">СТАТУС</h3>
+                        <h3 class="sidebar__title">
+                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                            Виробник
+                        </h3>
+                        <input type="text" id="brandSearch" class="sidebar__search" placeholder="Пошук бренду...">
+                        <ul class="filter-list" id="brandList">
+                            {% for manufacturer in manufacturers %}
+                            <li class="filter-item brand-item">
+                                <input type="checkbox" name="manufacturer" value="{{ manufacturer.manufacturer }}" id="brand_{{ forloop.counter }}"
+                                       {% if manufacturer.manufacturer in request.GET.getlist.manufacturer %}checked{% endif %}>
+                                <label for="brand_{{ forloop.counter }}" style="flex:1">{{ manufacturer.manufacturer }}</label>
+                                <span style="color:#adb5bd; font-size:12px">({{ manufacturer.count }})</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <!-- СТАТУС -->
+                    <div class="sidebar__section">
+                        <h3 class="sidebar__title">
+                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Статус
+                        </h3>
                         <ul class="filter-list">
                             <li class="filter-item">
-                                <input type="checkbox" name="in_stock" value="true" id="status1" {% if request.GET.in_stock == 'true' %}checked{% endif %}>
-                                <label for="status1" class="ml-2">В наявності</label>
+                                <input type="checkbox" name="in_stock" value="true" id="st_1" {% if request.GET.in_stock %}checked{% endif %}>
+                                <label for="st_1">В наявності</label>
                             </li>
                             <li class="filter-item">
-                                <input type="checkbox" name="status_discount" value="true" id="status2" {% if request.GET.status_discount == 'true' %}checked{% endif %}>
-                                <label for="status2" class="ml-2">Зі знижкою</label>
+                                <input type="checkbox" name="status_discount" value="true" id="st_2" {% if request.GET.status_discount %}checked{% endif %}>
+                                <label for="st_2" style="color: #fa5252; font-weight:600">Зі знижкою</label>
                             </li>
                         </ul>
                     </div>
 
-                    <!-- Filter Actions -->
                     <div class="filter-actions">
-                        <button type="submit" class="filter-btn filter-btn--apply">Застосувати</button>
                         <a href="{% url 'main:catalog' %}" class="filter-btn filter-btn--reset">Скинути</a>
+                        <button type="submit" class="filter-btn filter-btn--apply">Застосувати</button>
                     </div>
                 </form>
             </aside>
 
-            <!-- Main Content -->
-            <div class="flex-1">
-                <!-- Header -->
+            <!-- ПРАВА КОЛОНКА (ТОВАРИ) -->
+            <div class="catalog-content">
+
+                <!-- Заголовок і сортування -->
                 <div class="catalog__header">
                     <div>
-                        <h1 class="catalog__title">КАТАЛОГ ТОВАРІВ</h1>
-                        <p class="catalog__count">Знайдено: {{ total_count }} моделей</p>
+                        <h1 class="catalog__title">Каталог товарів</h1>
+                        <div class="catalog__count">Знайдено: {{ total_count }} {{ total_count|pluralize:"товар,товари,товарів" }}</div>
                     </div>
-                    <div class="catalog__controls">
-                        <form method="get" id="sortForm">
-                            {% for key, values in request.GET.lists %}
-                                {% if key != 'sort' and key != 'page' %}
-                                    {% for value in values %}
-                                        <input type="hidden" name="{{ key }}" value="{{ value }}">
-                                    {% endfor %}
-                                {% endif %}
-                            {% endfor %}
-                            <select name="sort" class="sort-select" onchange="this.form.submit()">
-                                <option value="-created_at" {% if current_sort == '-created_at' %}selected{% endif %}>Найновіші</option>
-                                <option value="price" {% if current_sort == 'price' %}selected{% endif %}>Ціна: зростання</option>
-                                <option value="-price" {% if current_sort == '-price' %}selected{% endif %}>Ціна: спадання</option>
-                                <option value="name" {% if current_sort == 'name' %}selected{% endif %}>Назва: А-Я</option>
-                            </select>
-                        </form>
-                    </div>
+
+                    <form method="get" id="sortForm">
+                        <!-- Зберігаємо поточні фільтри при сортуванні -->
+                        {% for key, values in request.GET.lists %}
+                            {% if key != 'sort' and key != 'page' %}
+                                {% for value in values %}
+                                    <input type="hidden" name="{{ key }}" value="{{ value }}">
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+
+                        <select name="sort" class="sort-select" onchange="this.form.submit()">
+                            <option value="-created_at" {% if current_sort == '-created_at' %}selected{% endif %}>За новизною</option>
+                            <option value="price" {% if current_sort == 'price' %}selected{% endif %}>Від дешевих</option>
+                            <option value="-price" {% if current_sort == '-price' %}selected{% endif %}>Від дорогих</option>
+                            <option value="name" {% if current_sort == 'name' %}selected{% endif %}>За назвою</option>
+                        </select>
+                    </form>
                 </div>
+
+                <!-- Active Filters Tags -->
+                {% if request.GET.category or request.GET.price_min %}
+                <div class="mb-4 flex flex-wrap gap-2">
+                     <a href="{% url 'main:catalog' %}" class="inline-block px-3 py-1 bg-red-100 text-red-600 rounded text-sm hover:bg-red-200">
+                        × Скинути всі фільтри
+                    </a>
+                </div>
+                {% endif %}
 
                 <!-- Products Grid -->
                 <div class="products-grid">
                     {% for product in products %}
                     <div class="product-card">
-                        <!-- Badges -->
+
                         <div class="product-card__badges">
                             {% if product.status_discount %}
-                                <span class="badge badge--sale">SALE</span>
+                                <span class="badge-sale">SALE</span>
                             {% endif %}
                         </div>
 
-                        <!-- Favorite -->
-                        <button class="product-card__favorite" title="Додати в обране">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                            </svg>
+                        <button class="product-card__fav">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
                         </button>
 
-                        <!-- Image -->
-                        <a href="{% url 'main:detail_page' product.slug %}" class="product-card__image-link">
-                            <div class="product-card__image" style="background-image: url('{{ product.main_image.url }}')"></div>
+                        <a href="{% url 'main:detail_page' product.slug %}" class="product-card__img-wrapper">
+                            <img src="{{ product.main_image.url }}" alt="{{ product.name }}" class="product-card__img">
                         </a>
 
-                        <!-- Content -->
-                        <div class="product-card__content">
-                            <div class="product-card__sku">Артикул: Z{{ product.id }}.7.1.0{{ forloop.counter }}</div>
+                        <div class="product-card__info">
+                            <div class="product-card__code">Артикул: {{ product.id|stringformat:"06d" }}</div>
 
-                            <div class="product-card__status">
+                            <div class="product-card__stock">
                                 {% if product.in_stock %}
-                                    <span class="status-text--green">Є в наявності</span>
+                                    <span class="text-green">● Є в наявності</span>
                                 {% else %}
-                                    <span class="status-text--red">Немає в наявності</span>
+                                    <span class="text-red">● Немає в наявності</span>
                                 {% endif %}
                             </div>
 
-                            <a href="{% url 'main:detail_page' product.slug %}" class="product-card__title" title="{{ product.name }}">
+                            <a href="{% url 'main:detail_page' product.slug %}" class="product-card__name">
                                 {{ product.name }}
                             </a>
 
-                            <!-- Footer -->
-                            <div class="product-card__footer">
-                                <div class="price-box">
+                            <div class="product-card__bottom">
+                                <div class="price-wrapper">
                                     {% if product.status_discount and product.discount_price %}
-                                        <span class="price-box__old">{{ product.price }} ₴</span>
-                                        <span class="price-box__current">{{ product.discount_price }} <span class="price-currency">₴</span></span>
+                                        <span class="old-price">{{ product.price }} грн</span>
+                                        <span class="current-price" style="color:#fa5252">{{ product.discount_price }} грн</span>
                                     {% else %}
-                                        <span class="price-box__current">{{ product.price }} <span class="price-currency">₴</span></span>
+                                        <span class="current-price">{{ product.price }} грн</span>
                                     {% endif %}
                                 </div>
 
                                 <form method="post" action="{% url 'cart:cart_add' product.id %}">
                                     {% csrf_token %}
                                     <input type="hidden" name="quantity" value="1">
-                                    <button type="submit" class="btn-buy-square" title="Купити">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m-2.4-2H1M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17M17 13a2 2 0 100 4 2 2 0 000-4zM9 19a2 2 0 11-4 0 2 2 0 014 0z" />
-                                        </svg>
+                                    <button type="submit" class="btn-cart" {% if not product.in_stock %}disabled style="opacity:0.5"{% endif %}>
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                                     </button>
                                 </form>
                             </div>
                         </div>
                     </div>
                     {% empty %}
-                    <div class="no-products col-span-full text-center py-10 text-gray-500">
-                        <p>Товари за вашим запитом не знайдено</p>
-                        <a href="{% url 'main:catalog' %}" class="filter-btn filter-btn--apply mt-4 inline-block w-auto px-6">Скинути фільтри</a>
+                    <div class="col-span-full text-center py-10">
+                        <p class="text-xl text-gray-500">Товарів не знайдено :(</p>
+                        <a href="{% url 'main:catalog' %}" class="text-blue-600 underline mt-2 inline-block">Скинути фільтри</a>
                     </div>
                     {% endfor %}
                 </div>
@@ -686,56 +600,53 @@
                 {% if products.has_other_pages %}
                 <div class="pagination">
                     {% if products.has_previous %}
-                        <a href="?{% for key, values in request.GET.lists %}{% if key != 'page' %}{% for value in values %}&{{ key }}={{ value }}{% endfor %}{% endif %}{% endfor %}&page={{ products.previous_page_number }}" class="pagination__btn">&laquo;</a>
+                        <a href="?{% for key, values in request.GET.lists %}{% if key != 'page' %}{% for value in values %}&{{ key }}={{ value }}{% endfor %}{% endif %}{% endfor %}&page={{ products.previous_page_number }}" class="page-link">&laquo;</a>
                     {% endif %}
 
                     {% for i in products.paginator.page_range %}
                         {% if products.number == i %}
-                            <span class="pagination__btn pagination__btn--active">{{ i }}</span>
+                            <span class="page-link active">{{ i }}</span>
                         {% elif i > products.number|add:'-3' and i < products.number|add:'3' %}
-                            <a href="?{% for key, values in request.GET.lists %}{% if key != 'page' %}{% for value in values %}&{{ key }}={{ value }}{% endfor %}{% endif %}{% endfor %}&page={{ i }}" class="pagination__btn">{{ i }}</a>
+                            <a href="?{% for key, values in request.GET.lists %}{% if key != 'page' %}{% for value in values %}&{{ key }}={{ value }}{% endfor %}{% endif %}{% endfor %}&page={{ i }}" class="page-link">{{ i }}</a>
                         {% endif %}
                     {% endfor %}
 
                     {% if products.has_next %}
-                        <a href="?{% for key, values in request.GET.lists %}{% if key != 'page' %}{% for value in values %}&{{ key }}={{ value }}{% endfor %}{% endif %}{% endfor %}&page={{ products.next_page_number }}" class="pagination__btn">&raquo;</a>
+                        <a href="?{% for key, values in request.GET.lists %}{% if key != 'page' %}{% for value in values %}&{{ key }}={{ value }}{% endfor %}{% endif %}{% endfor %}&page={{ products.next_page_number }}" class="page-link">&raquo;</a>
                     {% endif %}
                 </div>
                 {% endif %}
+
             </div>
         </div>
     </div>
 </section>
 
 <script>
-document.getElementById('brandSearch')?.addEventListener('input', function(e) {
-    const searchTerm = e.target.value.toLowerCase();
-    document.querySelectorAll('.brand-filter-item').forEach(item => {
-        const label = item.querySelector('label').textContent.toLowerCase();
-        item.style.display = label.includes(searchTerm) ? 'flex' : 'none';
+    // Пошук бренду
+    document.getElementById('brandSearch')?.addEventListener('keyup', function(e) {
+        let term = e.target.value.toLowerCase();
+        let items = document.querySelectorAll('.brand-item');
+        items.forEach(item => {
+            let text = item.innerText.toLowerCase();
+            item.style.display = text.includes(term) ? 'flex' : 'none';
+        });
     });
-});
 
-const mobileBtn = document.getElementById('mobileFilterBtn');
-const sidebar = document.getElementById('sidebar');
-const closeBtn = document.getElementById('sidebarClose');
-const overlay = document.getElementById('filtersOverlay');
+    // Мобільне меню
+    const mobileBtn = document.getElementById('mobileFilterBtn');
+    const sidebar = document.getElementById('sidebar');
+    const closeBtn = document.getElementById('sidebarClose');
+    const overlay = document.getElementById('overlay');
 
-if (mobileBtn) {
-    mobileBtn.addEventListener('click', () => {
-        sidebar.classList.add('active');
-        overlay.classList.add('filters-overlay--active');
-        document.body.style.overflow = 'hidden'; // Блокуємо прокрутку сторінки
-    });
-}
+    function toggleMenu() {
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+        document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+    }
 
-const closeSidebar = () => {
-    sidebar.classList.remove('active');
-    overlay.classList.remove('filters-overlay--active');
-    document.body.style.overflow = ''; // Відновлюємо прокрутку
-};
-
-if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
-if (overlay) overlay.addEventListener('click', closeSidebar);
+    if(mobileBtn) mobileBtn.addEventListener('click', toggleMenu);
+    if(closeBtn) closeBtn.addEventListener('click', toggleMenu);
+    if(overlay) overlay.addEventListener('click', toggleMenu);
 </script>
 {% endblock %}
