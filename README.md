@@ -21,7 +21,6 @@ pip install -r requirements.txt
 4.Создать .env
 
 ```bash
-```bash
 SECRET_KEY=...
 
 LIQPAY_PUBLIC_KEY=...
