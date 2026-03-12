@@ -2,10 +2,11 @@
 import json
 import uuid
 
+import requests
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.http import HttpResponse
-from django.views.decorators.http import require_POST
+from django.http import HttpResponse, JsonResponse
+from django.views.decorators.http import require_POST, require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.urls import reverse
@@ -139,7 +140,142 @@ def checkout(request):
     }
 
     return render(request, 'payments/checkout.html', context)
+@require_http_methods(["POST"])
+def get_nova_poshta_cities(request):
+    try:
+        data = json.loads(request.body)
+        city_name = data.get('city_name', '')
 
+        if not city_name or len(city_name) < 2:
+            return JsonResponse({'success': False, 'error': 'Введіть мінімум 2 символи'})
+
+        api_key = settings.NOVA_POST_KEY
+        url = 'https://api.novaposhta.ua/v2.0/json/'
+
+        payload = {
+            "apiKey": api_key,
+            "modelName": "Address",
+            "calledMethod": "searchSettlements",
+            "methodProperties": {
+                "CityName": city_name,
+                "Limit": "10"
+            }
+        }
+
+        response = requests.post(url, json=payload, timeout=10)
+        result = response.json()
+
+        # ← ДОБАВЬ ЭТО
+        print("=== NOVA POSHTA DEBUG ===")
+        print("API KEY:", api_key[:8] + "..." if api_key else "ПУСТОЙ!")
+        print("STATUS:", response.status_code)
+        print("SUCCESS:", result.get('success'))
+        print("ERRORS:", result.get('errors'))
+        print("DATA:", result.get('data'))
+        print("========================")
+
+        if result.get('success'):
+            cities = []
+            addresses = result.get('data', [])
+
+            if addresses and len(addresses) > 0:
+                addresses_list = addresses[0].get('Addresses', [])
+
+                for address in addresses_list:
+                    cities.append({
+                        'ref': address.get('DeliveryCity') or address.get('Ref'),  # ← фикс
+                        'present': address.get('Present'),
+                        'main_description': address.get('MainDescription'),
+                        'area': address.get('Area'),
+                        'region': address.get('Region')
+                    })
+
+            return JsonResponse({
+                'success': True,
+                'cities': cities
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': 'Міста не знайдено'
+            })
+
+    except requests.exceptions.RequestException as e:
+        return JsonResponse({
+            'success': False,
+            'error': 'Помилка зв\'язку з сервером Нової Пошти'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Помилка: {str(e)}'
+        })
+
+
+@require_http_methods(["POST"])
+def get_nova_poshta_warehouses(request):
+    """
+    Returns a list of Nova Poshta warehouses for the selected city.
+    """
+    try:
+        data = json.loads(request.body)
+        city_ref = data.get('city_ref', '')
+
+        if not city_ref:
+            return JsonResponse({
+                'success': False,
+                'error': 'Не вказано місто'
+            })
+
+        api_key = settings.NOVA_POST_KEY
+        url = 'https://api.novaposhta.ua/v2.0/json/'
+
+        payload = {
+            "apiKey": api_key,
+            "modelName": "Address",
+            "calledMethod": "getWarehouses",
+            "methodProperties": {
+                "CityRef": city_ref,
+                "Limit": "400"
+            }
+        }
+
+        response = requests.post(url, json=payload, timeout=10)
+        result = response.json()
+
+        if result.get('success'):
+            warehouses = []
+
+            for warehouse in result.get('data', []):
+                warehouses.append({
+                    'ref': warehouse.get('Ref'),
+                    'description': warehouse.get('Description'),
+                    'short_address': warehouse.get('ShortAddress'),
+                    'number': warehouse.get('Number'),
+                    'type': warehouse.get('TypeOfWarehouse'),
+                    'schedule': warehouse.get('Schedule')
+                })
+
+            return JsonResponse({
+                'success': True,
+                'warehouses': warehouses
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': 'Відділення не знайдено'
+            })
+
+    except requests.exceptions.RequestException as e:
+        return JsonResponse({
+            'success': False,
+            'error': 'Помилка зв\'язку з сервером Нової Пошти'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Помилка: {str(e)}'
+        })
 
 @csrf_exempt
 @require_POST
