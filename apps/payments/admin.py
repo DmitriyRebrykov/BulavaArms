@@ -10,7 +10,7 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('order_id', 'email', 'status', 'total', 'created_at')
+    list_display = ('order_id', 'email', 'status', 'total', 'created_at', 'city', 'address')
     list_filter = ('status', 'created_at')
     search_fields = ('order_id', 'email', 'phone', 'liqpay_payment_id', 'liqpay_order_id')
     readonly_fields = ('order_id', 'liqpay_payment_id', 'liqpay_order_id', 'created_at', 'updated_at')
@@ -18,7 +18,7 @@ class OrderAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Заказ', {
-            'fields': ('order_id', 'status', 'email', 'phone')
+            'fields': ('order_id', 'status', 'email', 'phone','city','address')
         }),
         ('Финансы', {
             'fields': ('subtotal', 'discount', 'total')
