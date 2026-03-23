@@ -3,173 +3,333 @@
 
 {% block title %}Мій профіль - BulavaArms{% endblock %}
 
+{% block extra_css %}
+<style>
+    .profile-section { background: #f8f9fa; min-height: calc(100vh - 200px); padding: 2rem 0 4rem; }
+
+    /* Sidebar */
+    .sidebar-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border: 1px solid #e9ecef; }
+    .sidebar-avatar { background: linear-gradient(135deg, #0c0d0e, #343a40); padding: 2rem 1.5rem; text-align: center; }
+    .avatar-circle {
+        width: 90px; height: 90px; border-radius: 50%; margin: 0 auto 1rem;
+        background: #495057; display: flex; align-items: center; justify-content: center;
+        font-size: 2.2rem; font-weight: 800; color: white; border: 3px solid rgba(255,255,255,0.2);
+        overflow: hidden;
+    }
+    .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
+    .sidebar-name { font-weight: 700; color: white; font-size: 1.1rem; }
+    .sidebar-email { color: #adb5bd; font-size: 0.82rem; margin-top: 0.25rem; word-break: break-all; }
+
+    .sidebar-nav { padding: 0.75rem; }
+    .sidebar-link {
+        display: flex; align-items: center; gap: 0.75rem;
+        padding: 0.75rem 1rem; border-radius: 10px;
+        color: #495057; text-decoration: none; font-weight: 500; font-size: 0.9rem;
+        transition: all 0.2s; margin-bottom: 2px;
+    }
+    .sidebar-link:hover { background: #f8f9fa; color: #0c0d0e; }
+    .sidebar-link.active { background: #f1f3f5; color: #0c0d0e; font-weight: 600; }
+    .sidebar-link svg { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.6; }
+    .sidebar-link.active svg { opacity: 1; }
+    .sidebar-link.danger { color: #dc3545; }
+    .sidebar-link.danger:hover { background: #fff5f5; }
+    .sidebar-divider { height: 1px; background: #f1f3f5; margin: 0.5rem 0.75rem; }
+
+    /* Content cards */
+    .content-card { background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border: 1px solid #e9ecef; margin-bottom: 1.5rem; }
+    .card-title { font-size: 1.2rem; font-weight: 700; color: #0c0d0e; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #f1f3f5; display: flex; align-items: center; gap: 0.5rem; }
+    .card-title svg { width: 20px; height: 20px; color: #495057; }
+
+    /* Form */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-group.full { grid-column: span 2; }
+    .form-label { font-size: 0.8rem; font-weight: 600; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; }
+    .form-input {
+        padding: 0.75rem 1rem; border: 2px solid #e9ecef; border-radius: 8px;
+        font-size: 0.95rem; transition: all 0.2s; width: 100%; box-sizing: border-box;
+        font-family: 'Montserrat', sans-serif;
+    }
+    .form-input:focus { outline: none; border-color: #495057; box-shadow: 0 0 0 3px rgba(73,80,87,0.1); }
+    .form-input.readonly { background: #f8f9fa; color: #6c757d; cursor: not-allowed; }
+    .errorlist { list-style: none; padding: 0; margin: 0.25rem 0 0; }
+    .errorlist li { color: #dc3545; font-size: 0.82rem; }
+
+    .save-btn {
+        display: inline-flex; align-items: center; gap: 0.5rem;
+        padding: 0.75rem 2rem; background: linear-gradient(135deg, #495057, #343a40);
+        color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 0.95rem;
+        cursor: pointer; transition: all 0.2s; font-family: 'Montserrat', sans-serif;
+    }
+    .save-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+
+    /* Avatar upload */
+    .avatar-upload-row { display: flex; align-items: center; gap: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 10px; margin-bottom: 1.5rem; }
+    .avatar-preview { width: 70px; height: 70px; border-radius: 50%; overflow: hidden; background: #dee2e6; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; color: #495057; }
+    .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar-upload-label { font-size: 0.85rem; color: #495057; }
+    .avatar-upload-label strong { display: block; margin-bottom: 0.3rem; }
+
+    /* Orders */
+    .order-card {
+        border: 1px solid #e9ecef; border-radius: 10px; padding: 1.25rem;
+        margin-bottom: 1rem; transition: box-shadow 0.2s;
+    }
+    .order-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .order-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem; }
+    .order-id { font-weight: 700; color: #0c0d0e; font-size: 0.95rem; }
+    .order-date { color: #6c757d; font-size: 0.82rem; margin-top: 0.2rem; }
+    .order-status {
+        display: inline-flex; align-items: center; gap: 0.35rem;
+        padding: 0.3rem 0.75rem; border-radius: 20px; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .status-paid { background: #d4edda; color: #155724; }
+    .status-pending { background: #d1ecf1; color: #0c5460; }
+    .status-processing { background: #fff3cd; color: #856404; }
+    .status-cancelled { background: #f8d7da; color: #721c24; }
+    .status-refunded { background: #e2e3e5; color: #383d41; }
+
+    .order-items { font-size: 0.85rem; color: #495057; margin-bottom: 0.75rem; }
+    .order-item-line { display: flex; justify-content: space-between; padding: 0.3rem 0; border-bottom: 1px solid #f8f9fa; }
+    .order-item-line:last-child { border-bottom: none; }
+    .order-total { display: flex; justify-content: space-between; font-weight: 700; color: #0c0d0e; padding-top: 0.5rem; border-top: 2px solid #f1f3f5; }
+
+    .empty-orders { text-align: center; padding: 3rem 1rem; color: #6c757d; }
+    .empty-orders svg { width: 56px; height: 56px; margin: 0 auto 1rem; color: #dee2e6; display: block; }
+
+    /* Alert messages */
+    .alert { padding: 0.875rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; }
+    .alert-success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+    .alert-error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+
+    @media (max-width: 768px) {
+        .form-grid { grid-template-columns: 1fr; }
+        .form-group.full { grid-column: span 1; }
+        .order-header { flex-direction: column; }
+        .avatar-upload-row { flex-direction: column; text-align: center; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="bg-gray-50 min-h-screen pb-20">
-    <!-- Breadcrumbs & Page Title -->
-    <div class="bg-white border-b border-gray-200">
-        <div class="container mx-auto px-4 py-6">
-            <nav class="flex text-sm text-gray-500 mb-4">
-                <a href="/" class="hover:text-primary-900 transition-colors">Головна</a>
-                <span class="mx-2">/</span>
-                <span class="text-primary-900 font-medium">Особистий кабінет</span>
-            </nav>
-            <h1 class="text-3xl md:text-4xl font-extrabold text-primary-900 uppercase tracking-tight">
-                Мій профіль
-            </h1>
+<section class="profile-section">
+    <div class="container mx-auto px-4">
+
+        {% if messages %}
+        <div style="max-width:900px; margin: 0 auto 1rem;">
+            {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
+                {% if message.tags == 'success' %}
+                <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                {% else %}
+                <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>
+                {% endif %}
+                {{ message }}
+            </div>
+            {% endfor %}
         </div>
-    </div>
+        {% endif %}
 
-    <div class="container mx-auto px-4 py-8">
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6" style="max-width:1100px; margin: 0 auto;">
 
-            <!-- Sidebar Navigation -->
+            <!-- ===== SIDEBAR ===== -->
             <aside class="lg:col-span-1">
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden sticky top-8">
-                    <!-- User Mini Profile -->
-                    <div class="p-6 border-b border-gray-100 bg-primary-900 text-white text-center">
-                        <div class="w-24 h-24 mx-auto bg-gray-700 rounded-full flex items-center justify-center text-3xl font-bold mb-4 border-4 border-primary-800 shadow-lg relative overflow-hidden">
-                            {% if user.image %}
-                                <img src="{{ user.image.url }}" alt="{{ user.username }}" class="w-full h-full object-cover">
+                <div class="sidebar-card" style="position: sticky; top: 1.5rem;">
+                    <div class="sidebar-avatar">
+                        <div class="avatar-circle">
+                            {% if user.avatar %}
+                                <img src="{{ user.avatar.url }}" alt="{{ user.get_full_name }}">
                             {% else %}
-                                <span>{{ user.first_name.0|default:user.username.0|upper }}</span>
+                                {{ user.first_name.0|default:user.username.0|upper }}
                             {% endif %}
                         </div>
-                        <h2 class="text-xl font-bold truncate">{{ user.first_name }} {{ user.last_name }}</h2>
-                        <p class="text-gray-400 text-sm truncate">{{ user.email }}</p>
+                        <div class="sidebar-name">{{ user.get_full_name|default:user.username }}</div>
+                        <div class="sidebar-email">{{ user.email }}</div>
                     </div>
 
-                    <!-- Navigation Links -->
-                    <nav class="p-2">
-                        <a href="{% url 'users:profile' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary-50 text-primary-900 font-medium mb-1 transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                            Особиста інформація
+                    <nav class="sidebar-nav">
+                        <a href="{% url 'users:profile' %}" class="sidebar-link active">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                            Мій профіль
                         </a>
-                        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-primary-900 transition-colors mb-1 group">
-                            <svg class="w-5 h-5 text-gray-400 group-hover:text-primary-900 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-                            Мої замовлення
-                            <span class="ml-auto bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs font-bold group-hover:bg-gray-200">0</span>
-                        </a>
-                        <a href="{% url 'cart:cart_detail' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-primary-900 transition-colors mb-1 group">
-                            <svg class="w-5 h-5 text-gray-400 group-hover:text-primary-900 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m-2.4-2H1M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17M17 13a2 2 0 100 4 2 2 0 000-4zM9 19a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        <a href="{% url 'cart:cart_detail' %}" class="sidebar-link">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m-2.4-2H1M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17M17 13a2 2 0 100 4 2 2 0 000-4zM9 19a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                             Кошик
                         </a>
-                        <div class="h-px bg-gray-100 my-2"></div>
-                        <a href="{% url 'users:logout' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                        <div class="sidebar-divider"></div>
+                        <a href="{% url 'users:logout' %}" class="sidebar-link danger">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                             Вийти
                         </a>
                     </nav>
                 </div>
             </aside>
 
-            <!-- Main Content -->
-            <div class="lg:col-span-3 space-y-6">
+            <!-- ===== MAIN CONTENT ===== -->
+            <div class="lg:col-span-3">
 
-                <!-- Personal Info Card -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 p-6 opacity-10 pointer-events-none">
-                        <svg class="w-32 h-32 text-primary-900" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                    </div>
+                <!-- Personal Info Form -->
+                <div class="content-card">
+                    <h2 class="card-title">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                        Особиста інформація
+                    </h2>
 
-                    <div class="flex justify-between items-start mb-6 relative z-10">
-                        <h2 class="text-2xl font-bold text-primary-900">Особиста інформація</h2>
-                        <a href="{% url 'users:profile' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-50 text-primary-700 rounded-lg text-sm font-medium hover:bg-primary-100 transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                            Редагувати
-                        </a>
-                    </div>
-
-                    <!-- Info Grid -->
-                    <form action="{% url 'users:profile' %}" method="post" enctype="multipart/form-data">
+                    <form method="post" enctype="multipart/form-data" novalidate>
                         {% csrf_token %}
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
-                            <!-- Field: First Name -->
-                            <div class="space-y-1">
-                                <label for="{{ form.first_name.id_for_label }}" class="text-xs font-bold text-gray-500 uppercase tracking-wide">Ім'я</label>
-                                <input type="text" name="first_name" id="id_first_name" value="{{ form.first_name.value|default:'' }}"
-                                    class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none"
-                                    placeholder="Введіть ваше ім'я">
-                                {% if form.first_name.errors %}
-                                    <p class="text-red-500 text-xs mt-1">{{ form.first_name.errors.0 }}</p>
+
+                        <!-- Avatar row -->
+                        <div class="avatar-upload-row">
+                            <div class="avatar-preview">
+                                {% if user.avatar %}
+                                    <img src="{{ user.avatar.url }}" alt="Avatar">
+                                {% else %}
+                                    {{ user.first_name.0|default:user.username.0|upper }}
                                 {% endif %}
                             </div>
-
-                            <!-- Field: Last Name -->
-                            <div class="space-y-1">
-                                <label for="{{ form.last_name.id_for_label }}" class="text-xs font-bold text-gray-500 uppercase tracking-wide">Прізвище</label>
-                                <input type="text" name="last_name" id="id_last_name" value="{{ form.last_name.value|default:'' }}"
-                                    class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none"
-                                    placeholder="Введіть ваше прізвище">
-                                {% if form.last_name.errors %}
-                                    <p class="text-red-500 text-xs mt-1">{{ form.last_name.errors.0 }}</p>
-                                {% endif %}
+                            <div class="avatar-upload-label">
+                                <strong>Фото профілю</strong>
+                                {{ form.avatar }}
+                                {% if form.avatar.errors %}<ul class="errorlist">{% for e in form.avatar.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
                             </div>
-
-                            <!-- Field: Username -->
-                            <div class="space-y-1">
-                                <label for="{{ form.username.id_for_label }}" class="text-xs font-bold text-gray-500 uppercase tracking-wide">Логін</label>
-                                <input type="text" name="username" id="id_username" value="{{ form.username.value|default:'' }}"
-                                    class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed"
-                                    readonly>
-                            </div>
-
-                            <!-- Field: Email -->
-                            <div class="space-y-1">
-                                <label for="{{ form.email.id_for_label }}" class="text-xs font-bold text-gray-500 uppercase tracking-wide">Email</label>
-                                <input type="email" name="email" id="id_email" value="{{ form.email.value|default:'' }}"
-                                    class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed"
-                                    readonly>
-                            </div>
-
-                            <!-- Field: Avatar (Optional) -->
-                            <div class="md:col-span-2 space-y-1">
-                                <label for="{{ form.image.id_for_label }}" class="text-xs font-bold text-gray-500 uppercase tracking-wide">Аватар</label>
-                                <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
-                                        {% if user.image %}
-                                            <img src="{{ user.image.url }}" class="w-full h-full object-cover">
-                                        {% endif %}
-                                    </div>
-                                    <input type="file" name="image" id="id_image"
-                                        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100">
-                                </div>
-                                {% if form.image.errors %}
-                                    <p class="text-red-500 text-xs mt-1">{{ form.image.errors.0 }}</p>
-                                {% endif %}
-                            </div>
-
                         </div>
 
-                        <div class="mt-8 flex justify-end">
-                            <button type="submit" class="px-6 py-3 bg-primary-900 text-white rounded-lg font-bold hover:bg-primary-800 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                        <div class="form-grid">
+                            <!-- First name -->
+                            <div class="form-group">
+                                <label class="form-label">Ім'я</label>
+                                <input type="text" name="first_name" class="form-input" value="{{ form.first_name.value|default:'' }}" placeholder="Іван">
+                                {% if form.first_name.errors %}<ul class="errorlist">{% for e in form.first_name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                            </div>
+
+                            <!-- Last name -->
+                            <div class="form-group">
+                                <label class="form-label">Прізвище</label>
+                                <input type="text" name="last_name" class="form-input" value="{{ form.last_name.value|default:'' }}" placeholder="Петренко">
+                                {% if form.last_name.errors %}<ul class="errorlist">{% for e in form.last_name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                            </div>
+
+                            <!-- Email -->
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" name="email" class="form-input" value="{{ form.email.value|default:'' }}" placeholder="email@example.com">
+                                {% if form.email.errors %}<ul class="errorlist">{% for e in form.email.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                            </div>
+
+                            <!-- Phone -->
+                            <div class="form-group">
+                                <label class="form-label">Телефон</label>
+                                <input type="tel" name="phone" class="form-input" value="{{ form.phone.value|default:'' }}" placeholder="+380501234567">
+                                {% if form.phone.errors %}<ul class="errorlist">{% for e in form.phone.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                            </div>
+
+                            <!-- Date of birth -->
+                            <div class="form-group">
+                                <label class="form-label">Дата народження</label>
+                                <input type="date" name="date_of_birth" class="form-input" value="{{ form.date_of_birth.value|default:'' }}">
+                                {% if form.date_of_birth.errors %}<ul class="errorlist">{% for e in form.date_of_birth.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                            </div>
+
+                            <!-- City -->
+                            <div class="form-group">
+                                <label class="form-label">Місто</label>
+                                <input type="text" name="city" class="form-input" value="{{ form.city.value|default:'' }}" placeholder="Київ">
+                                {% if form.city.errors %}<ul class="errorlist">{% for e in form.city.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                            </div>
+
+                            <!-- Postal code -->
+                            <div class="form-group">
+                                <label class="form-label">Поштовий індекс</label>
+                                <input type="text" name="postal_code" class="form-input" value="{{ form.postal_code.value|default:'' }}" placeholder="01001">
+                                {% if form.postal_code.errors %}<ul class="errorlist">{% for e in form.postal_code.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                            </div>
+
+                            <!-- Address -->
+                            <div class="form-group full">
+                                <label class="form-label">Адреса доставки</label>
+                                <textarea name="address" class="form-input" rows="2" placeholder="Вулиця, будинок, квартира">{{ form.address.value|default:'' }}</textarea>
+                                {% if form.address.errors %}<ul class="errorlist">{% for e in form.address.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end mt-6">
+                            <button type="submit" class="save-btn">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                 Зберегти зміни
                             </button>
                         </div>
                     </form>
                 </div>
 
-                <!-- Recent Orders Placeholder -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-xl font-bold text-primary-900">Останні замовлення</h2>
-                        <a href="#" class="text-sm font-medium text-primary-600 hover:text-primary-800">Всі замовлення →</a>
-                    </div>
+                <!-- Orders -->
+                <div class="content-card">
+                    <h2 class="card-title">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                        Мої замовлення
+                        {% if orders %}<span style="background:#e9ecef; color:#495057; font-size:0.78rem; padding:0.2rem 0.6rem; border-radius:20px; font-weight:600; margin-left:0.5rem;">{{ orders|length }}</span>{% endif %}
+                    </h2>
 
-                    <!-- Empty State -->
-                    <div class="text-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
-                            <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                    {% if orders %}
+                        {% for order in orders %}
+                        <div class="order-card">
+                            <div class="order-header">
+                                <div>
+                                    <div class="order-id">Замовлення #{{ order.order_id }}</div>
+                                    <div class="order-date">{{ order.created_at|date:"d.m.Y о H:i" }}</div>
+                                </div>
+                                <span class="order-status status-{{ order.status }}">
+                                    {% if order.status == 'paid' %}✓ Оплачено
+                                    {% elif order.status == 'pending' %}⏳ Очікує оплати
+                                    {% elif order.status == 'processing' %}🔄 В обробці
+                                    {% elif order.status == 'cancelled' %}✕ Відмінено
+                                    {% elif order.status == 'refunded' %}↩ Повернення
+                                    {% else %}{{ order.get_status_display }}{% endif %}
+                                </span>
+                            </div>
+
+                            <!-- Items -->
+                            <div class="order-items">
+                                {% for item in order.items.all %}
+                                <div class="order-item-line">
+                                    <span>{{ item.product_name }} <span style="color:#adb5bd;">× {{ item.quantity }}</span></span>
+                                    <span>{{ item.line_total }} ₴</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Delivery info -->
+                            {% if order.city or order.address %}
+                            <div style="font-size:0.82rem; color:#6c757d; margin-bottom:0.75rem;">
+                                📦 {{ order.city }}{% if order.address %}, {{ order.address }}{% endif %}
+                            </div>
+                            {% endif %}
+
+                            <div class="order-total">
+                                <span>Разом</span>
+                                <span>{{ order.total }} ₴</span>
+                            </div>
                         </div>
-                        <h3 class="text-gray-900 font-medium mb-1">У вас поки немає замовлень</h3>
-                        <p class="text-gray-500 text-sm mb-4">Почніть покупки прямо зараз!</p>
-                        <a href="{% url 'main:catalog' %}" class="inline-flex items-center px-4 py-2 bg-primary-900 text-white rounded-lg text-sm font-medium hover:bg-primary-800 transition-colors">
-                            Перейти до каталогу
-                        </a>
-                    </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-orders">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                            </svg>
+                            <p style="font-weight: 600; margin-bottom: 0.5rem;">У вас поки немає замовлень</p>
+                            <p style="font-size: 0.85rem;">Перейдіть до каталогу щоб зробити перше замовлення</p>
+                            <a href="{% url 'main:catalog' %}" style="display:inline-block; margin-top:1rem; padding:0.6rem 1.5rem; background:#0c0d0e; color:white; border-radius:8px; text-decoration:none; font-weight:600; font-size:0.9rem;">
+                                Перейти до каталогу
+                            </a>
+                        </div>
+                    {% endif %}
                 </div>
 
             </div>
         </div>
     </div>
-</div>
+</section>
 {% endblock %}

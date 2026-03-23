@@ -19,60 +19,46 @@ logger = logging.getLogger(__name__)
 
 
 def checkout(request):
-    """
-    Страница подтверждения заказа (checkout).
-    Создаёт Order и отображает форму оплаты LiqPay.
-    """
     cart = Cart(request)
 
     if len(cart) == 0:
         messages.info(request, 'Кошик порожній.')
         return redirect('cart:cart_detail')
 
-    # POST - сохранение данных доставки перед оплатой
     if request.method == 'POST':
-        # Получаем order_id из формы
         order_id = request.POST.get('order_id')
-
         try:
             order = Order.objects.get(order_id=order_id)
-
-            # Сохраняем контактные данные
             order.email = request.POST.get('email', '')
             order.phone = request.POST.get('phone', '')
             order.first_name = request.POST.get('first_name', '')
             order.last_name = request.POST.get('last_name', '')
-
-            # Сохраняем адрес доставки
             order.city = request.POST.get('city', '')
             order.postal_code = request.POST.get('postal_code', '')
             order.address = request.POST.get('address', '')
             order.delivery_notes = request.POST.get('delivery_notes', '')
-
             order.save()
-
             return HttpResponse(status=200)
         except Order.DoesNotExist:
             return HttpResponse(status=404)
 
-    # GET - отображение формы
-    # Генерируем уникальный order_id
+    # GET
     order_id = f'ORDER-{uuid.uuid4().hex[:12].upper()}'
 
-    # Создаём заказ со статусом pending
     subtotal = str(cart.get_subtotal())
     discount = str(cart.get_discount())
     total = str(cart.get_total_price())
 
+    # ← Привязываем заказ к пользователю
     order = Order.objects.create(
         order_id=order_id,
         subtotal=subtotal,
         discount=discount,
         total=total,
         status='pending',
+        user=request.user if request.user.is_authenticated else None,
     )
 
-    # Если пользователь авторизован, предзаполняем данные
     if request.user.is_authenticated:
         order.email = request.user.email
         order.phone = request.user.phone or ''
@@ -83,7 +69,6 @@ def checkout(request):
         order.address = request.user.address or ''
         order.save()
 
-    # Создаём позиции заказа
     for item in cart:
         OrderItem.objects.create(
             order=order,
@@ -93,22 +78,13 @@ def checkout(request):
             unit_price=item['price'],
         )
 
-    # Сохраняем order_id в сессии для callback
     request.session['pending_order_id'] = order_id
 
-    # Готовим данные для формы LiqPay
     liqpay = LiqPayAPI()
-
-    # URL для возврата пользователя после оплаты
     result_url = request.build_absolute_uri(reverse('payments:liqpay_success'))
-
-    # URL для серверного callback
     server_url = request.build_absolute_uri(reverse('payments:liqpay_callback'))
-
-    # Описание платежа
     description = f'Оплата замовлення {order_id} на BulavaArms'
 
-    # Генерируем data и signature
     payment_data = liqpay.create_payment_form(
         order_id=order_id,
         amount=str(total),
@@ -117,7 +93,6 @@ def checkout(request):
         server_url=server_url,
     )
 
-    # Подготовка данных для шаблона
     cart_items = []
     for item in cart:
         cart_items.append({
@@ -140,6 +115,8 @@ def checkout(request):
     }
 
     return render(request, 'payments/checkout.html', context)
+
+
 @require_http_methods(["POST"])
 def get_nova_poshta_cities(request):
     try:
@@ -165,67 +142,37 @@ def get_nova_poshta_cities(request):
         response = requests.post(url, json=payload, timeout=10)
         result = response.json()
 
-        # ← ДОБАВЬ ЭТО
-        print("=== NOVA POSHTA DEBUG ===")
-        print("API KEY:", api_key[:8] + "..." if api_key else "ПУСТОЙ!")
-        print("STATUS:", response.status_code)
-        print("SUCCESS:", result.get('success'))
-        print("ERRORS:", result.get('errors'))
-        print("DATA:", result.get('data'))
-        print("========================")
-
         if result.get('success'):
             cities = []
             addresses = result.get('data', [])
-
             if addresses and len(addresses) > 0:
                 addresses_list = addresses[0].get('Addresses', [])
-
                 for address in addresses_list:
                     cities.append({
-                        'ref': address.get('DeliveryCity') or address.get('Ref'),  # ← фикс
+                        'ref': address.get('DeliveryCity') or address.get('Ref'),
                         'present': address.get('Present'),
                         'main_description': address.get('MainDescription'),
                         'area': address.get('Area'),
                         'region': address.get('Region')
                     })
-
-            return JsonResponse({
-                'success': True,
-                'cities': cities
-            })
+            return JsonResponse({'success': True, 'cities': cities})
         else:
-            return JsonResponse({
-                'success': False,
-                'error': 'Міста не знайдено'
-            })
+            return JsonResponse({'success': False, 'error': 'Міста не знайдено'})
 
-    except requests.exceptions.RequestException as e:
-        return JsonResponse({
-            'success': False,
-            'error': 'Помилка зв\'язку з сервером Нової Пошти'
-        })
+    except requests.exceptions.RequestException:
+        return JsonResponse({'success': False, 'error': "Помилка зв'язку з сервером Нової Пошти"})
     except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': f'Помилка: {str(e)}'
-        })
+        return JsonResponse({'success': False, 'error': f'Помилка: {str(e)}'})
 
 
 @require_http_methods(["POST"])
 def get_nova_poshta_warehouses(request):
-    """
-    Returns a list of Nova Poshta warehouses for the selected city.
-    """
     try:
         data = json.loads(request.body)
         city_ref = data.get('city_ref', '')
 
         if not city_ref:
-            return JsonResponse({
-                'success': False,
-                'error': 'Не вказано місто'
-            })
+            return JsonResponse({'success': False, 'error': 'Не вказано місто'})
 
         api_key = settings.NOVA_POST_KEY
         url = 'https://api.novaposhta.ua/v2.0/json/'
@@ -245,7 +192,6 @@ def get_nova_poshta_warehouses(request):
 
         if result.get('success'):
             warehouses = []
-
             for warehouse in result.get('data', []):
                 warehouses.append({
                     'ref': warehouse.get('Ref'),
@@ -255,52 +201,31 @@ def get_nova_poshta_warehouses(request):
                     'type': warehouse.get('TypeOfWarehouse'),
                     'schedule': warehouse.get('Schedule')
                 })
-
-            return JsonResponse({
-                'success': True,
-                'warehouses': warehouses
-            })
+            return JsonResponse({'success': True, 'warehouses': warehouses})
         else:
-            return JsonResponse({
-                'success': False,
-                'error': 'Відділення не знайдено'
-            })
+            return JsonResponse({'success': False, 'error': 'Відділення не знайдено'})
 
-    except requests.exceptions.RequestException as e:
-        return JsonResponse({
-            'success': False,
-            'error': 'Помилка зв\'язку з сервером Нової Пошти'
-        })
+    except requests.exceptions.RequestException:
+        return JsonResponse({'success': False, 'error': "Помилка зв'язку з сервером Нової Пошти"})
     except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': f'Помилка: {str(e)}'
-        })
+        return JsonResponse({'success': False, 'error': f'Помилка: {str(e)}'})
+
 
 @csrf_exempt
 @require_POST
 def liqpay_callback(request):
-    """
-    Server callback от LiqPay (асинхронное уведомление).
-    Обновляет статус заказа после оплаты.
-    """
     data = request.POST.get('data')
     signature = request.POST.get('signature')
 
     if not data or not signature:
-        logger.warning('LiqPay callback: missing data or signature')
         return HttpResponse(status=400)
 
     liqpay = LiqPayAPI()
     callback_data = liqpay.verify_callback(data, signature)
 
     if not callback_data:
-        logger.error('LiqPay callback: invalid signature')
         return HttpResponse(status=400)
 
-    logger.info(f'LiqPay callback received: {callback_data}')
-
-    # Извлекаем данные
     order_id = callback_data.get('order_id')
     status = callback_data.get('status')
     payment_id = callback_data.get('payment_id')
@@ -309,35 +234,25 @@ def liqpay_callback(request):
     try:
         order = Order.objects.get(order_id=order_id)
     except Order.DoesNotExist:
-        logger.error(f'LiqPay callback: order {order_id} not found')
         return HttpResponse(status=404)
 
-    # Обновляем заказ
     order.liqpay_payment_id = payment_id or ''
     order.liqpay_order_id = liqpay_order_id or ''
 
-    # Маппинг статусов LiqPay → наши статусы
     status_map = {
-        'success': 'paid',  # оплачено
-        'failure': 'cancelled',  # ошибка
-        'reversed': 'refunded',  # возврат
-        'sandbox': 'paid',  # тестовая оплата (sandbox)
-        'processing': 'processing',  # в обработке
+        'success': 'paid',
+        'failure': 'cancelled',
+        'reversed': 'refunded',
+        'sandbox': 'paid',
+        'processing': 'processing',
     }
-
     order.status = status_map.get(status, 'pending')
     order.save()
-
-    logger.info(f'Order {order_id} updated: status={order.status}')
 
     return HttpResponse('OK', status=200)
 
 
 def liqpay_success(request):
-    """
-    Страница успешной оплаты (result_url).
-    LiqPay редиректит сюда пользователя после оплаты.
-    """
     order_id = request.session.get('pending_order_id')
 
     if not order_id:
@@ -350,32 +265,19 @@ def liqpay_success(request):
         messages.error(request, 'Замовлення не знайдено.')
         return redirect('cart:cart_detail')
 
-    # Очищаем корзину если оплата успешна или в обработке
     if order.status in ['paid', 'processing']:
         cart = Cart(request)
         if cart.has_products():
             cart.clear()
 
-    # Удаляем pending_order_id из сессии
     request.session.pop('pending_order_id', None)
-
-    context = {
-        'order': order,
-    }
-
-    return render(request, 'payments/success.html', context)
+    return render(request, 'payments/success.html', {'order': order})
 
 
 def liqpay_cancel(request):
-    """
-    Страница отмены оплаты (опционально).
-    Можно использовать если пользователь закрыл окно LiqPay.
-    """
-    # Удаляем pending_order_id из сессии
     order_id = request.session.pop('pending_order_id', None)
 
     if order_id:
-        # Опционально: отменяем заказ
         try:
             order = Order.objects.get(order_id=order_id)
             if order.status == 'pending':
