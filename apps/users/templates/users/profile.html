@@ -327,6 +327,22 @@
                         </div>
                     {% endif %}
                 </div>
+            <!-- Loyalty Widget для sidebar -->
+<div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg p-4 mb-4">
+    <div class="flex justify-between items-start mb-3">
+        <h3 class="font-bold">Мои поинты</h3>
+        <span class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded">
+            {{ user.loyaltyaccount.tier|upper }}
+        </span>
+    </div>
+    <div class="text-3xl font-bold mb-2">
+        {{ user.loyaltyaccount.balance|floatformat:0 }}
+    </div>
+    <p class="text-blue-100 text-xs mb-3">доступно для использования</p>
+    <a href="{% url 'loyalty:dashboard' %}" class="text-xs underline hover:no-underline">
+        Подробнее →
+    </a>
+</div>
 
             </div>
         </div>

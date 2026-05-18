@@ -33,6 +33,8 @@ INSTALLED_APPS = [
     'apps.cart',
     'apps.users',
     'apps.payments',
+    'apps.wishlist',
+    'apps.loyalty',
 ]
 
 MIDDLEWARE = [
@@ -134,3 +136,8 @@ LIQPAY_PUBLIC_KEY = os.getenv('LIQPAY_PUBLIC_KEY', '')
 LIQPAY_PRIVATE_KEY = os.getenv('LIQPAY_PRIVATE_KEY', '')
 LIQPAY_CURRENCY = 'UAH'
 NOVA_POST_KEY=os.getenv('NOVA_POST_KEY', '')
+# Процент начисления поинтов (по умолчанию 5%)
+LOYALTY_EARN_PERCENTAGE = 5
+
+# URL для доступа к дашборду лояльности
+LOYALTY_DASHBOARD_URL = '/loyalty/dashboard/'

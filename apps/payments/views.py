@@ -1,7 +1,9 @@
 # payments/views.py
 import json
 import uuid
-
+from decimal import Decimal
+from apps.loyalty.signals import spend_loyalty_points_for_order
+from apps.loyalty.models import LoyaltyAccount
 import requests
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -15,6 +17,8 @@ from .models import Order, OrderItem
 from .liqpay_utils import LiqPayAPI
 import logging
 
+from ..loyalty.signals import spend_loyalty_points_for_order
+
 logger = logging.getLogger(__name__)
 
 
@@ -27,8 +31,21 @@ def checkout(request):
 
     if request.method == 'POST':
         order_id = request.POST.get('order_id')
+        loyalty_points = request.session.get('loyalty_points_to_use')
+
+
         try:
             order = Order.objects.get(order_id=order_id)
+            if loyalty_points:
+                try:
+                    loyalty_points_decimal = Decimal(loyalty_points)
+                    if spend_loyalty_points_for_order(order, loyalty_points_decimal):
+                        order.loyalty_points_used = loyalty_points_decimal
+                        order.save()
+                        del request.session['loyalty_points_to_use']
+                except Exception as e:
+                    logger.error(f'Error spending loyalty points: {str(e)}')
+
             order.email = request.POST.get('email', '')
             order.phone = request.POST.get('phone', '')
             order.first_name = request.POST.get('first_name', '')
@@ -58,6 +75,7 @@ def checkout(request):
         status='pending',
         user=request.user if request.user.is_authenticated else None,
     )
+
 
     if request.user.is_authenticated:
         order.email = request.user.email

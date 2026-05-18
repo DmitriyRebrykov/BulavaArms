@@ -41,6 +41,18 @@ class Order(models.Model):
     total = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Разом до сплати')
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name='Статус')
+    loyalty_points_used = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        verbose_name='Використані бонусні поінти'
+    )
+    loyalty_points_earned = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        verbose_name='Заробленні бонусні поінти'
+    )
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата створення')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата оновлення')

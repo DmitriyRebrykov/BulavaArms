@@ -1,0 +1,218 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Мой баланс и лояльность - BulavaArms{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-8">🎯 Программа лояльности BulavaArms</h1>
+
+    <!-- MAIN STATS ROW -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <!-- Card 1: Balance -->
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg p-6">
+            <p class="text-blue-100 text-sm mb-2">Текущий баланс</p>
+            <p class="text-4xl font-bold">{{ account.balance|floatformat:0 }}</p>
+            <p class="text-blue-200 text-xs mt-2">поинтов</p>
+        </div>
+
+        <!-- Card 2: Tier -->
+        <div class="bg-gradient-to-br from-yellow-500 to-orange-600 text-white rounded-lg p-6">
+            <p class="text-yellow-100 text-sm mb-2">Ваш уровень</p>
+            <p class="text-3xl font-bold">
+                {% if account.tier == 'bronze' %}🥉 БРОНЗА
+                {% elif account.tier == 'silver' %}🥈 СЕРЕБРО
+                {% elif account.tier == 'gold' %}🥇 ЗОЛОТО
+                {% elif account.tier == 'platinum' %}💎 ПЛАТИНА
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- Card 3: Total Earned -->
+        <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg p-6">
+            <p class="text-green-100 text-sm mb-2">Всего заработано</p>
+            <p class="text-3xl font-bold">{{ account.total_earned|floatformat:0 }}</p>
+            <p class="text-green-200 text-xs mt-2">поинтов</p>
+        </div>
+
+        <!-- Card 4: Total Spent -->
+        <div class="bg-gradient-to-br from-red-500 to-pink-600 text-white rounded-lg p-6">
+            <p class="text-red-100 text-sm mb-2">Потрачено денег</p>
+            <p class="text-3xl font-bold">{{ account.total_spent|floatformat:0 }}</p>
+            <p class="text-red-200 text-xs mt-2">₴</p>
+        </div>
+    </div>
+
+    <!-- PROGRESS TO NEXT TIER -->
+    <div class="bg-white rounded-lg shadow p-6 mb-8">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">📈 Прогресс до следующего уровня</h2>
+
+        {% if account.tier != 'platinum' %}
+            {% if account.tier == 'bronze' %}
+                <div class="mb-4">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-700">От 0 ₴ → <strong>СЕРЕБРО</strong> (20,000 ₴)</span>
+                        <span class="font-bold text-blue-600">{{ account.total_spent|floatformat:0 }} / 20,000</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-4">
+                        {% widthratio account.total_spent 20000 100 as progress %}
+                        <div class="bg-blue-500 h-4 rounded-full" style="width: {{ progress }}%"></div>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-2">
+                        Еще потратить: <strong>{% widthratio 20000|add:"-"|add:account.total_spent 1 1 as remaining %}
+                            {{ remaining|floatformat:0 }} ₴
+                        </strong>
+                    </p>
+                </div>
+            {% elif account.tier == 'silver' %}
+                <div class="mb-4">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-700">От 20,000 ₴ → <strong>ЗОЛОТО</strong> (50,000 ₴)</span>
+                        <span class="font-bold text-blue-600">{{ account.total_spent|floatformat:0 }} / 50,000</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-4">
+                        {% widthratio account.total_spent 50000 100 as progress %}
+                        <div class="bg-blue-500 h-4 rounded-full" style="width: {{ progress }}%"></div>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-2">
+                        Еще потратить: <strong>
+                            {% widthratio 50000|add:"-"|add:account.total_spent 1 1 as remaining %}
+                            {{ remaining|floatformat:0 }} ₴
+                        </strong>
+                    </p>
+                </div>
+            {% elif account.tier == 'gold' %}
+                <div class="mb-4">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-700">От 50,000 ₴ → <strong>ПЛАТИНА</strong> (100,000 ₴)</span>
+                        <span class="font-bold text-blue-600">{{ account.total_spent|floatformat:0 }} / 100,000</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-4">
+                        {% widthratio account.total_spent 100000 100 as progress %}
+                        <div class="bg-blue-500 h-4 rounded-full" style="width: {{ progress }}%"></div>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-2">
+                        Еще потратить: <strong>
+                            {% widthratio 100000|add:"-"|add:account.total_spent 1 1 as remaining %}
+                            {{ remaining|floatformat:0 }} ₴
+                        </strong>
+                    </p>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="bg-purple-50 border border-purple-200 rounded p-4">
+                <p class="text-purple-800 font-bold">🎉 Поздравляем! Вы достигли максимального уровня ПЛАТИНА!</p>
+                <p class="text-purple-700 mt-2">Вы получаете 10% поинтов за каждую покупку!</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- TIER INFORMATION -->
+    <div class="bg-white rounded-lg shadow p-6 mb-8">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">🏆 Уровни лояльности</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Bronze -->
+            <div class="border-2 {% if account.tier == 'bronze' %}border-yellow-600 bg-yellow-50{% else %}border-gray-200{% endif %} rounded p-4">
+                <p class="text-3xl mb-2">🥉</p>
+                <p class="font-bold text-lg mb-2">БРОНЗА</p>
+                <p class="text-xs text-gray-600 mb-3">От 0 ₴</p>
+                <p class="text-sm font-bold text-blue-600">5% поинтов</p>
+                {% if account.tier == 'bronze' %}<span class="text-xs bg-yellow-600 text-white px-2 py-1 rounded mt-2 inline-block">Текущий</span>{% endif %}
+            </div>
+
+            <!-- Silver -->
+            <div class="border-2 {% if account.tier == 'silver' %}border-gray-400 bg-gray-50{% else %}border-gray-200{% endif %} rounded p-4">
+                <p class="text-3xl mb-2">🥈</p>
+                <p class="font-bold text-lg mb-2">СЕРЕБРО</p>
+                <p class="text-xs text-gray-600 mb-3">От 20,000 ₴</p>
+                <p class="text-sm font-bold text-blue-600">6.25% поинтов</p>
+                {% if account.tier == 'silver' %}<span class="text-xs bg-gray-600 text-white px-2 py-1 rounded mt-2 inline-block">Текущий</span>{% endif %}
+            </div>
+
+            <!-- Gold -->
+            <div class="border-2 {% if account.tier == 'gold' %}border-yellow-400 bg-yellow-50{% else %}border-gray-200{% endif %} rounded p-4">
+                <p class="text-3xl mb-2">🥇</p>
+                <p class="font-bold text-lg mb-2">ЗОЛОТО</p>
+                <p class="text-xs text-gray-600 mb-3">От 50,000 ₴</p>
+                <p class="text-sm font-bold text-blue-600">7.5% поинтов</p>
+                {% if account.tier == 'gold' %}<span class="text-xs bg-yellow-600 text-white px-2 py-1 rounded mt-2 inline-block">Текущий</span>{% endif %}
+            </div>
+
+            <!-- Platinum -->
+            <div class="border-2 {% if account.tier == 'platinum' %}border-purple-400 bg-purple-50{% else %}border-gray-200{% endif %} rounded p-4">
+                <p class="text-3xl mb-2">💎</p>
+                <p class="font-bold text-lg mb-2">ПЛАТИНА</p>
+                <p class="text-xs text-gray-600 mb-3">От 100,000 ₴</p>
+                <p class="text-sm font-bold text-blue-600">10% поинтов</p>
+                {% if account.tier == 'platinum' %}<span class="text-xs bg-purple-600 text-white px-2 py-1 rounded mt-2 inline-block">Текущий</span>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- TRANSACTION HISTORY -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="border-b border-gray-200 p-6">
+            <h2 class="text-xl font-bold text-gray-800">📋 История операций</h2>
+        </div>
+
+        {% if transactions %}
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Дата</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Тип операции</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Сумма</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Описание</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr class="border-b border-gray-200 hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm text-gray-900">
+                            {{ transaction.created_at|date:"d.m.Y H:i" }}
+                        </td>
+                        <td class="px-6 py-4 text-sm">
+                            {% if transaction.type == 'earn' %}
+                                <span class="bg-green-100 text-green-800 px-3 py-1 rounded text-xs font-semibold">
+                                    ➕ Зачисление
+                                </span>
+                            {% elif transaction.type == 'spend' %}
+                                <span class="bg-red-100 text-red-800 px-3 py-1 rounded text-xs font-semibold">
+                                    ➖ Списание
+                                </span>
+                            {% elif transaction.type == 'adjustment' %}
+                                <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded text-xs font-semibold">
+                                    ⚙️ Коррекция
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm font-semibold">
+                            <span class="{% if transaction.type == 'earn' %}text-green-600{% else %}text-red-600{% endif %}">
+                                {% if transaction.type == 'earn' %}+{% else %}-{% endif %}{{ transaction.amount|floatformat:0 }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-700">
+                            {{ transaction.description }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-6">
+            <p class="text-center text-gray-500">📭 История операций пуста</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    /* Smooth progress bar animation */
+    .bg-blue-500 {
+        transition: width 0.5s ease;
+    }
+</style>
+{% endblock %}

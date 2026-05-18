@@ -5,13 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}BulavaArms - Каталог військових товарів{% endblock %}</title>
-    
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
+
     <!-- Tailwind Config -->
     <script>
         tailwind.config = {
@@ -40,17 +40,17 @@
             }
         }
     </script>
-    
+
     <!-- Base Styles -->
     <style>
         * {
             font-family: 'Montserrat', sans-serif;
         }
-        
+
         .header {
             background: linear-gradient(135deg, #0c0d0e 0%, #1a1d20 100%);
         }
-        
+
         .header__logo {
             color: #6c757d;
             font-weight: 800;
@@ -58,7 +58,7 @@
             text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
             letter-spacing: -0.5px;
         }
-        
+
         /* Burger Menu Styles */
         .burger-btn {
             display: none;
@@ -72,7 +72,7 @@
             padding: 0;
             z-index: 10;
         }
-        
+
         .burger-btn span {
             width: 100%;
             height: 3px;
@@ -80,19 +80,19 @@
             border-radius: 10px;
             transition: all 0.3s ease;
         }
-        
+
         .burger-btn.active span:nth-child(1) {
             transform: rotate(45deg) translate(8px, 8px);
         }
-        
+
         .burger-btn.active span:nth-child(2) {
             opacity: 0;
         }
-        
+
         .burger-btn.active span:nth-child(3) {
             transform: rotate(-45deg) translate(8px, -8px);
         }
-        
+
         .mobile-menu {
             position: fixed;
             top: 0;
@@ -106,11 +106,11 @@
             overflow-y: auto;
             box-shadow: -5px 0 15px rgba(0,0,0,0.3);
         }
-        
+
         .mobile-menu.active {
             right: 0;
         }
-        
+
         .mobile-menu-overlay {
             position: fixed;
             top: 0;
@@ -121,11 +121,11 @@
             z-index: 998;
             display: none;
         }
-        
+
         .mobile-menu-overlay.active {
             display: block;
         }
-        
+
         .mobile-menu__header {
             display: flex;
             justify-content: space-between;
@@ -134,14 +134,14 @@
             border-bottom: 1px solid #e5e7eb;
             background: linear-gradient(135deg, #0c0d0e 0%, #1a1d20 100%);
         }
-        
+
         .mobile-menu__logo {
             color: #6c757d;
             font-weight: 800;
             font-size: 1.5rem;
             text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
         }
-        
+
         .mobile-menu__close {
             width: 32px;
             height: 32px;
@@ -155,16 +155,16 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        
+
         .mobile-menu__close:hover {
             background: #dc2626;
             transform: rotate(90deg);
         }
-        
+
         .mobile-menu__nav {
             padding: 1.5rem 0;
         }
-        
+
         .mobile-menu__link {
             display: flex;
             align-items: center;
@@ -175,25 +175,25 @@
             font-weight: 500;
             transition: all 0.3s ease;
         }
-        
+
         .mobile-menu__link:hover {
             background: #f9fafb;
             padding-left: 2rem;
         }
-        
+
         .mobile-menu__link svg {
             margin-right: 0.75rem;
             color: #6b7280;
             min-width: 20px;
         }
-        
+
         .mobile-menu__lang {
             display: flex;
             gap: 1rem;
             padding: 1.5rem;
             border-top: 1px solid #e5e7eb;
         }
-        
+
         .mobile-menu__lang-btn {
             flex: 1;
             padding: 0.75rem;
@@ -204,36 +204,36 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        
+
         .mobile-menu__lang-btn.active {
             background: #495057;
             color: white;
             border-color: #495057;
         }
-        
+
         @media (max-width: 768px) {
             .burger-btn {
                 display: flex;
             }
-            
+
             .header__logo {
                 font-size: 2rem;
             }
-            
+
             .desktop-nav {
                 display: none !important;
             }
         }
-        
+
         {% block extra_css %}{% endblock %}
     </style>
-    
+
     {% block extra_head %}{% endblock %}
 </head>
 <body class="bg-gray-50">
     <!-- Mobile Menu Overlay -->
     <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
-    
+
     <!-- Mobile Menu -->
     <div class="mobile-menu" id="mobileMenu">
         <div class="mobile-menu__header">
@@ -246,7 +246,7 @@
                 </svg>
             </button>
         </div>
-        
+
         <nav class="mobile-menu__nav">
             <a href="" class="mobile-menu__link">
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -254,21 +254,14 @@
                 </svg>
                 Головна
             </a>
-            
+
             <a href="{% url 'main:catalog' %}" class="mobile-menu__link">
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/>
                 </svg>
                 Каталог
             </a>
-
-
         </nav>
-        
-<!--        <div class="mobile-menu__lang">-->
-<!--            <button class="mobile-menu__lang-btn active">UA</button>-->
-<!--            <button class="mobile-menu__lang-btn">RU</button>-->
-<!--        </div>-->
     </div>
 
     <!-- Header -->
@@ -284,8 +277,8 @@
                             </svg>
                             Головна
                         </a>
-
                     </div>
+
                     <div class="flex items-center space-x-4">
                         <span class="hidden sm:flex items-center">
                             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -307,7 +300,7 @@
                         <div class="header__logo">BulavaArms</div>
                         <sup class="text-accent-400 text-lg">®</sup>
                     </a>
-                    
+
                     <nav class="desktop-nav hidden md:flex items-center space-x-6">
                         <a href="{% url 'main:catalog' %}" class="text-primary-100 hover:text-accent-400 flex items-center font-medium transition-colors">
                             <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -316,30 +309,60 @@
                             КАТАЛОГ
                         </a>
                     </nav>
-                    
-                    <div class="flex items-center space-x-4">
 
-                        <a href="{%url 'users:profile'%}" class="text-primary-100 hover:text-accent-400 p-2 hidden sm:block">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    <div class="flex items-center space-x-3">
+                        <!-- PROFILE -->
+                        <a href="{% url 'users:profile' %}"
+                           class="text-primary-100 hover:text-accent-400 p-2 relative transition-colors hidden sm:block">
+                            <svg class="w-6 h-6"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 viewBox="0 0 24 24">
+                                <path stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      stroke-width="2"
+                                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                             </svg>
                         </a>
-<!--                        <a href="" class="text-primary-100 hover:text-accent-400 p-2 hidden sm:block">-->
-<!--                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">-->
-<!--                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>-->
-<!--                            </svg>-->
-<!--                        </a>-->
-                        <a href="{% url 'cart:cart_detail' %}" class="text-primary-100 hover:text-accent-400 p-2 relative" id="cartLink">
-    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m-2.4-2H1M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17M17 13a2 2 0 100 4 2 2 0 000-4zM9 19a2 2 0 11-4 0 2 2 0 014 0z"/>
-    </svg>
-    <span id="cartCounter" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold transition-all duration-200 {% if not cart_items_count or cart_items_count == 0 %}hidden{% endif %}">
-        {{ cart_items_count|default:0 }}
-    </span>
-</a>
 
-                        
-                        <!-- Burger Menu Button -->
+                        <!-- WISHLIST -->
+                        <a href="{% url 'wishlist:wishlist_detail' %}"
+                           class="text-primary-100 hover:text-accent-400 p-2 relative transition-colors">
+                            <svg class="w-6 h-6"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 viewBox="0 0 24 24">
+                                <path stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      stroke-width="2"
+                                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                            </svg>
+                            {% if user.is_authenticated and user.wishlist.items.count > 0 %}
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                                {{ user.wishlist.items.count }}
+                            </span>
+                            {% endif %}
+                        </a>
+
+                        <!-- CART -->
+                        <a href="{% url 'cart:cart_detail' %}"
+                           class="text-primary-100 hover:text-accent-400 p-2 relative transition-colors"
+                           id="cartLink">
+                            <svg class="w-6 h-6"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 viewBox="0 0 24 24">
+                                <path stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      stroke-width="2"
+                                      d="M3 3h2l.4 2M7 13h10l4-8H5.4m-2.4-2H1M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17M17 13a2 2 0 100 4 2 2 0 000-4zM9 19a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                            <span id="cartCounter" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold transition-all duration-200 {% if not cart_items_count or cart_items_count == 0 %}hidden{% endif %}">
+                                {{ cart_items_count|default:0 }}
+                            </span>
+                        </a>
+
+                        <!-- BURGER MENU -->
                         <button class="burger-btn" id="burgerBtn">
                             <span></span>
                             <span></span>
@@ -384,7 +407,7 @@
                         <sup class="text-accent-400 text-lg">®</sup>
                     </div>
                     <p class="text-primary-200 mb-4 max-w-md">
-                        Провідний постачальник високоякісних військових товарів та спорядження в Україні. 
+                        Провідний постачальник високоякісних військових товарів та спорядження в Україні.
                         Ми гарантуємо якість, надійність та безпеку кожного продукту.
                     </p>
                     <div class="flex space-x-4">
@@ -439,7 +462,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="border-t border-primary-800 mt-8 pt-8 text-center text-primary-300">
                 <p>&copy; {% now "Y" %} BulavaArms. Всі права захищені.</p>
             </div>
@@ -454,7 +477,7 @@
             const mobileMenu = document.getElementById('mobileMenu');
             const closeMobileMenu = document.getElementById('closeMobileMenu');
             const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
-            
+
             // Open mobile menu
             burgerBtn.addEventListener('click', function() {
                 mobileMenu.classList.add('active');
@@ -462,7 +485,7 @@
                 burgerBtn.classList.add('active');
                 document.body.style.overflow = 'hidden';
             });
-            
+
             // Close mobile menu function
             function closeMenu() {
                 mobileMenu.classList.remove('active');
@@ -470,13 +493,13 @@
                 burgerBtn.classList.remove('active');
                 document.body.style.overflow = '';
             }
-            
+
             // Close on close button click
             closeMobileMenu.addEventListener('click', closeMenu);
-            
+
             // Close on overlay click
             mobileMenuOverlay.addEventListener('click', closeMenu);
-            
+
             // Language switcher
             const langButtons = document.querySelectorAll('.mobile-menu__lang-btn');
             langButtons.forEach(btn => {

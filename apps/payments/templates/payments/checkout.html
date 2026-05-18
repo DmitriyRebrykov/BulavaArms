@@ -174,6 +174,8 @@
     .auth-notice__btn--primary {
         background: #f59e0b;
         color: white;
+        border: none;
+        cursor: pointer;
     }
     .auth-notice__btn--primary:hover {
         background: #d97706;
@@ -314,7 +316,6 @@
 <section class="checkout-section">
     <div class="container mx-auto px-4" style="max-width: 900px;">
 
-
         <h1 class="text-3xl font-bold mb-6 text-gray-900">Оформлення замовлення</h1>
 
         <!-- Order number badge -->
@@ -355,6 +356,7 @@
         {% endif %}
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Ліва колонка -->
             <div>
                 <div class="checkout-card">
                     <h2 class="checkout-card__title">Контактна інформація</h2>
@@ -428,89 +430,85 @@
                 </div>
 
                 <!-- Delivery Information -->
-                <!-- Delivery Information -->
-<div class="checkout-card">
-    <h2 class="checkout-card__title">Інформація про доставку</h2>
-    <div class="form-grid">
+                <div class="checkout-card">
+                    <h2 class="checkout-card__title">Інформація про доставку</h2>
+                    <div class="form-grid">
 
-        <!-- City search -->
-        <div class="form-group form-grid--full" style="position:relative;">
-            <label for="city_search" class="form-label">
-                Місто<span class="required">*</span>
-            </label>
-            <input type="text"
-                   id="city_search"
-                   class="form-input"
-                   placeholder="Почніть вводити назву міста..."
-                   autocomplete="off">
-            <!-- Hidden field с ref городя для API -->
-            <input type="hidden" id="city_ref" name="city_ref" form="checkoutForm">
-            <!-- Hidden field с именем города для сохранения в Order.city -->
-            <input type="hidden" id="city" name="city" form="checkoutForm" required>
+                        <!-- City search -->
+                        <div class="form-group form-grid--full" style="position:relative;">
+                            <label for="city_search" class="form-label">
+                                Місто<span class="required">*</span>
+                            </label>
+                            <input type="text"
+                                   id="city_search"
+                                   class="form-input"
+                                   placeholder="Почніть вводити назву міста..."
+                                   autocomplete="off">
+                            <input type="hidden" id="city_ref" name="city_ref" form="checkoutForm">
+                            <input type="hidden" id="city" name="city" form="checkoutForm" required>
 
-            <!-- Dropdown городов -->
-            <div id="city_dropdown"
-                 style="display:none; position:absolute; z-index:100; width:100%;
-                        background:white; border:2px solid #e2e8f0; border-top:none;
-                        border-radius:0 0 8px 8px; max-height:220px; overflow-y:auto;
-                        box-shadow:0 4px 12px rgba(0,0,0,0.1);">
-            </div>
-            <div class="form-error hidden" id="city-error">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                </svg>
-                <span>Оберіть місто зі списку</span>
-            </div>
-        </div>
+                            <!-- Dropdown міст -->
+                            <div id="city_dropdown"
+                                 style="display:none; position:absolute; z-index:100; width:100%;
+                                        background:white; border:2px solid #e2e8f0; border-top:none;
+                                        border-radius:0 0 8px 8px; max-height:220px; overflow-y:auto;
+                                        box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+                            </div>
+                            <div class="form-error hidden" id="city-error">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>Оберіть місто зі списку</span>
+                            </div>
+                        </div>
 
-        <!-- Warehouse search -->
-        <div class="form-group form-grid--full" id="warehouse_block" style="display:none;">
-            <label for="warehouse_search" class="form-label">
-                Відділення Нової Пошти<span class="required">*</span>
-            </label>
-            <input type="text"
-                   id="warehouse_search"
-                   class="form-input"
-                   placeholder="Пошук відділення або поштомату..."
-                   autocomplete="off">
-            <!-- Hidden field с адресом отделения -->
-            <input type="hidden" id="address" name="address" form="checkoutForm" required>
+                        <!-- Warehouse search -->
+                        <div class="form-group form-grid--full" id="warehouse_block" style="display:none;">
+                            <label for="warehouse_search" class="form-label">
+                                Відділення Нової Пошти<span class="required">*</span>
+                            </label>
+                            <input type="text"
+                                   id="warehouse_search"
+                                   class="form-input"
+                                   placeholder="Пошук відділення або поштомату..."
+                                   autocomplete="off">
+                            <input type="hidden" id="address" name="address" form="checkoutForm" required>
 
-            <!-- Dropdown отделений -->
-            <div id="warehouse_dropdown"
-                 style="display:none; position:absolute; z-index:100; width:100%;
-                        background:white; border:2px solid #e2e8f0; border-top:none;
-                        border-radius:0 0 8px 8px; max-height:260px; overflow-y:auto;
-                        box-shadow:0 4px 12px rgba(0,0,0,0.1);">
-            </div>
-            <div id="warehouse_loading" style="display:none; color:#888; font-size:0.85rem; margin-top:0.4rem;">
-                Завантаження відділень...
-            </div>
-            <div class="form-error hidden" id="warehouse-error">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                </svg>
-                <span>Оберіть відділення зі списку</span>
-            </div>
-        </div>
+                            <!-- Dropdown відділень -->
+                            <div id="warehouse_dropdown"
+                                 style="display:none; position:absolute; z-index:100; width:100%;
+                                        background:white; border:2px solid #e2e8f0; border-top:none;
+                                        border-radius:0 0 8px 8px; max-height:260px; overflow-y:auto;
+                                        box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+                            </div>
+                            <div id="warehouse_loading" style="display:none; color:#888; font-size:0.85rem; margin-top:0.4rem;">
+                                Завантаження відділень...
+                            </div>
+                            <div class="form-error hidden" id="warehouse-error">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>Оберіть відділення зі списку</span>
+                            </div>
+                        </div>
 
-        <!-- Comment -->
-        <div class="form-group form-grid--full">
-            <label for="delivery_notes" class="form-label">
-                Коментар до замовлення (необов'язково)
-            </label>
-            <textarea id="delivery_notes"
-                      name="delivery_notes"
-                      form="checkoutForm"
-                      class="form-input"
-                      rows="2"
-                      placeholder="Додаткова інформація"></textarea>
-        </div>
-    </div>
-</div>
+                        <!-- Comment -->
+                        <div class="form-group form-grid--full">
+                            <label for="delivery_notes" class="form-label">
+                                Коментар до замовлення (необов'язково)
+                            </label>
+                            <textarea id="delivery_notes"
+                                      name="delivery_notes"
+                                      form="checkoutForm"
+                                      class="form-input"
+                                      rows="2"
+                                      placeholder="Додаткова інформація"></textarea>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Right Column: Order Summary -->
+            <!-- Права колонка: Замовлення, Лояльність та Підсумок -->
             <div>
                 <!-- Order Items -->
                 <div class="checkout-card">
@@ -531,6 +529,87 @@
                     </div>
                     {% endfor %}
                 </div>
+
+                <!-- БЛОК ЛОЯЛЬНОСТІ -->
+                {% if user.is_authenticated %}
+                <div class="checkout-card">
+                    <h2 class="checkout-card__title">💰 Використати бонусні бали</h2>
+
+                    <div style="background:#f0f4f8; border:1px solid #e2e8f0; border-radius:8px; padding:1.25rem; margin-bottom:1.25rem;">
+                        <p style="font-size:0.9rem; color:#495057; margin-bottom:0.25rem;">Ваш баланс:</p>
+                        <p style="font-size:1.5rem; font-weight:700; color:#2196F3; margin:0;">
+                            100 балів
+                        </p>
+                        <p style="font-size:0.8rem; color:#6c757d; margin-top:0.25rem;">1 бал = 1 ₴ знижки</p>
+                    </div>
+
+                    <!-- ФОРМА ВИКОРИСТАННЯ БАЛІВ -->
+                    <form method="post" action="{% url 'loyalty:use_points' %}">
+                        {% csrf_token %}
+
+                        <label style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1.25rem; cursor:pointer;">
+                            <input type="checkbox"
+                                   id="use-loyalty-points"
+                                   name="use_loyalty_points"
+                                   style="width:18px; height:18px;">
+                            <span style="font-weight:600; color:#0c0d0e;">Використати бали для знижки</span>
+                        </label>
+
+                        <div id="loyalty-input-block" style="display: none; margin-bottom:1.25rem;">
+                            <label class="form-label">
+                                Скільки балів використати?
+                                <span class="required">*</span>
+                            </label>
+
+                            <div style="display:flex; gap:0.5rem;">
+                                <input type="number"
+                                       name="points_amount"
+                                       id="points-amount"
+                                       min="0"
+                                       max="{{ user.loyaltyaccount.balance|floatformat:0 }}"
+                                       placeholder="Введіть кількість"
+                                       class="form-input" style="flex:1;">
+
+                                <button type="button"
+                                        onclick="document.getElementById('points-amount').value = {{ user.loyaltyaccount.balance|floatformat:0 }}; document.getElementById('points-amount').dispatchEvent(new Event('input'));"
+                                        style="padding:0 1rem; background:#e2e8f0; border-radius:8px; font-weight:600; color:#495057; border:none; cursor:pointer;">
+                                    Макс
+                                </button>
+                            </div>
+
+                            <div style="margin-top:1rem; padding:0.85rem; background:#fff8e1; border:1px solid #ffe082; border-radius:8px;">
+                                <p style="font-size:0.85rem; color:#795548; margin:0;">
+                                    ⚠️ Максимум для цього замовлення:
+                                    <strong>{{ total_price|floatformat:0 }} ₴</strong>
+                                    <br>
+                                    <span style="font-size:0.75rem; opacity:0.8;">(50% від суми)</span>
+                                </p>
+                            </div>
+
+                            <!-- ПОПЕРЕДНІЙ ПЕРЕГЛЯД ЗНИЖКИ -->
+                            <div id="discount-preview" style="margin-top:1rem; padding:0.85rem; background:#e8f5e9; border:1px solid #c8e6c9; border-radius:8px; display:none;">
+                                <p style="font-size:0.85rem; color:#2e7d32; margin:0 0 0.25rem 0;">Ваша знижка:</p>
+                                <p style="font-size:1.2rem; font-weight:700; color:#2e7d32; margin:0;" id="discount-amount">0 ₴</p>
+                            </div>
+
+                            <button type="submit" class="auth-notice__btn auth-notice__btn--primary" style="margin-top:1.25rem; width:100%; justify-content:center; padding:0.8rem;">
+                                Застосувати знижку
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- ІНФОРМАЦІЙНИЙ БЛОК -->
+                    <div style="margin-top:1.5rem; padding:1rem; background:#f8f9fa; border:1px solid #e2e8f0; border-radius:8px;">
+                        <h4 style="font-weight:700; color:#343a40; margin-bottom:0.5rem; font-size:0.9rem;">📌 Як працюють бали?</h4>
+                        <ul style="font-size:0.85rem; color:#495057; line-height:1.6; padding-left:1.2rem; margin:0;">
+                            <li>Ви отримуєте 5% від кожної покупки у вигляді балів</li>
+                            <li>1 бал = 1 ₴ знижки на будь-які товари</li>
+                            <li>Чим вищий ваш рівень, тим більше балів ви отримуєте</li>
+                            <li>Можна оплатити балами до 50% від суми замовлення</li>
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
 
                 <!-- Payment Summary -->
                 <div class="checkout-card">
@@ -884,6 +963,24 @@ document.getElementById('phone')?.addEventListener('blur', function () {
     } else {
         this.classList.remove('error');
         phoneError.classList.add('hidden');
+    }
+});
+
+// ─── Loyalty logic ─────────────────────────────────────────────────────
+
+document.getElementById('use-loyalty-points')?.addEventListener('change', function() {
+    const inputBlock = document.getElementById('loyalty-input-block');
+    if (inputBlock) {
+        inputBlock.style.display = this.checked ? 'block' : 'none';
+    }
+});
+
+document.getElementById('points-amount')?.addEventListener('input', function() {
+    const discount = this.value || 0;
+    const preview = document.getElementById('discount-preview');
+    if (preview) {
+        document.getElementById('discount-amount').textContent = discount + ' ₴';
+        preview.style.display = discount > 0 ? 'block' : 'none';
     }
 });
 </script>

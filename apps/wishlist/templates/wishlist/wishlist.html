@@ -1,0 +1,404 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Список бажань - BulavaArms{% endblock %}
+
+{% block extra_css %}
+<style>
+    .wishlist-section {
+        background: linear-gradient(135deg, #f8f8f8 0%, #f0f0f0 100%);
+        padding: 4rem 0;
+        min-height: calc(100vh - 300px);
+    }
+
+    .wishlist-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        margin-bottom: 1.5rem;
+    }
+
+    .wishlist-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .wishlist-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #0c0d0e;
+    }
+
+    .wishlist-count {
+        background: linear-gradient(135deg, #495057, #343a40);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .wishlist-controls {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .wishlist-btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .wishlist-btn--primary {
+        background: linear-gradient(135deg, #495057, #343a40);
+        color: white;
+    }
+
+    .wishlist-btn--primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .wishlist-btn--secondary {
+        background: #f0f0f0;
+        color: #333;
+    }
+
+    .wishlist-btn--secondary:hover {
+        background: #e2e2e2;
+    }
+
+    .wishlist-btn--danger {
+        background: #ffebee;
+        color: #ff4444;
+    }
+
+    .wishlist-btn--danger:hover {
+        background: #ff4444;
+        color: white;
+    }
+
+    .product-item {
+        display: grid;
+        grid-template-columns: 150px 1fr auto;
+        gap: 1.5rem;
+        padding: 1.5rem 0;
+        border-bottom: 1px solid #f0f0f0;
+        align-items: center;
+    }
+
+    .product-item:last-child {
+        border-bottom: none;
+    }
+
+    .product-image {
+        width: 150px;
+        height: 150px;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #f8f8f8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .product-image img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .product-info h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #0c0d0e;
+        margin-bottom: 0.5rem;
+    }
+
+    .product-meta {
+        color: #666;
+        font-size: 0.85rem;
+        margin-bottom: 0.75rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .product-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .product-price {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .original-price {
+        text-decoration: line-through;
+        color: #999;
+        font-size: 0.9rem;
+    }
+
+    .current-price {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #0c0d0e;
+    }
+
+    .discount-badge {
+        background: #ff4444;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .product-stock {
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .product-stock.available {
+        color: #28a745;
+    }
+
+    .product-stock.unavailable {
+        color: #ff4444;
+    }
+
+    .product-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        min-width: 140px;
+    }
+
+    .action-btn {
+        padding: 0.6rem 1rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+    }
+
+    .action-btn--add-cart {
+        background: #495057;
+        color: white;
+    }
+
+    .action-btn--add-cart:hover {
+        background: #343a40;
+    }
+
+    .action-btn--remove {
+        background: #f0f0f0;
+        color: #333;
+    }
+
+    .action-btn--remove:hover {
+        background: #ffebee;
+        color: #ff4444;
+    }
+
+    .empty-wishlist {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .empty-icon {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 1.5rem;
+        color: #ddd;
+    }
+
+    .empty-text {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-subtext {
+        color: #999;
+        margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .wishlist-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .product-item {
+            grid-template-columns: 1fr;
+        }
+
+        .product-image {
+            width: 100%;
+        }
+
+        .product-actions {
+            flex-direction: row;
+            min-width: auto;
+        }
+
+        .action-btn {
+            flex: 1;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="wishlist-section">
+    <div class="container mx-auto px-4">
+        {% if items %}
+        <div class="wishlist-card">
+            <div class="wishlist-header">
+                <div>
+                    <h1 class="wishlist-title">Список бажань</h1>
+                    <span class="wishlist-count">{{ items_count }} товарів</span>
+                </div>
+                <div class="wishlist-controls">
+                    <a href="{% url 'main:catalog' %}" class="wishlist-btn wishlist-btn--primary">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                        </svg>
+                        До каталогу
+                    </a>
+                    <form method="post" action="{% url 'wishlist:clear' %}" style="display: inline;" onsubmit="return confirm('Очистити весь список бажань?')">
+                        {% csrf_token %}
+                        <button type="submit" class="wishlist-btn wishlist-btn--danger">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                            Очистити
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            {% for item in items %}
+            <div class="product-item">
+                <div class="product-image">
+                    {% if item.product.main_image %}
+                    <a href="{% url 'main:detail_page' item.product.slug %}">
+                        <img src="{{ item.product.main_image.url }}" alt="{{ item.product.name }}">
+                    </a>
+                    {% else %}
+                    <svg class="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                    </svg>
+                    {% endif %}
+                </div>
+
+                <div class="product-info">
+                    <h3>
+                        <a href="{% url 'main:detail_page' item.product.slug %}" style="color: #0c0d0e; text-decoration: none;">
+                            {{ item.product.name }}
+                        </a>
+                    </h3>
+
+                    <div class="product-meta">
+                        {% if item.product.manufacturer %}
+                        <span class="product-meta-item">{{ item.product.manufacturer }}</span>
+                        {% endif %}
+                        {% if item.product.category %}
+                        <span class="product-meta-item">• {{ item.product.category.name }}</span>
+                        {% endif %}
+                        {% if item.product.caliber %}
+                        <span class="product-meta-item">• {{ item.product.caliber }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="product-price">
+                        {% if item.product.status_discount and item.product.discount_price %}
+                        <span class="original-price">{{ item.product.price }}₴</span>
+                        <span class="current-price" style="color: #ff4444;">{{ item.product.discount_price }}₴</span>
+                        <span class="discount-badge">ЗНИЖКА</span>
+                        {% else %}
+                        <span class="current-price">{{ item.product.price }}₴</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="product-stock {% if item.product.in_stock %}available{% else %}unavailable{% endif %}">
+                        {% if item.product.in_stock %}
+                        ✓ Є в наявності
+                        {% else %}
+                        ✕ Немає в наявності
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="product-actions">
+                    <form method="post" action="{% url 'cart:cart_add' item.product.id %}" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="action-btn action-btn--add-cart" {% if not item.product.in_stock %}disabled style="opacity:0.5"{% endif %}>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            До кошика
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'wishlist:remove' item.product.id %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="action-btn action-btn--remove">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                            Видалити
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <div class="wishlist-card">
+            <div class="empty-wishlist">
+                <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                </svg>
+                <div class="empty-text">Ваш список бажань порожній</div>
+                <div class="empty-subtext">Додайте товари, щоб відстежувати їх</div>
+                <a href="{% url 'main:catalog' %}" class="wishlist-btn wishlist-btn--primary">
+                    Почати покупки
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

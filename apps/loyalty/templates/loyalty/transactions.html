@@ -1,0 +1,377 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Бонусна програма - BulavaArms{% endblock %}
+
+{% block extra_css %}
+<style>
+    .loyalty-section {
+        background: linear-gradient(135deg, #f8f8f8 0%, #f0f0f0 100%);
+        padding: 4rem 0;
+        min-height: calc(100vh - 300px);
+    }
+
+    .loyalty-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        margin-bottom: 1.5rem;
+    }
+
+    .loyalty-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding-bottom: 2rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .loyalty-title {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0c0d0e;
+        margin-bottom: 0.5rem;
+    }
+
+    .loyalty-subtitle {
+        color: #666;
+        font-size: 1rem;
+    }
+
+    /* Balance card */
+    .balance-card {
+        background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+
+    .balance-label {
+        font-size: 0.85rem;
+        opacity: 0.8;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.5rem;
+    }
+
+    .balance-value {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+    }
+
+    .balance-subtext {
+        font-size: 0.9rem;
+        opacity: 0.7;
+    }
+
+    .tier-badge {
+        display: inline-block;
+        background: rgba(255,255,255,0.2);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border: 1px solid rgba(255,255,255,0.3);
+        margin-top: 1rem;
+    }
+
+    .tier-badge--platinum {
+        background: rgba(255,215,0,0.3);
+        border-color: rgba(255,215,0,0.5);
+        color: #ffd700;
+    }
+
+    .tier-badge--gold {
+        background: rgba(255,215,0,0.2);
+        border-color: rgba(255,215,0,0.4);
+        color: #ffd700;
+    }
+
+    .tier-badge--silver {
+        background: rgba(192,192,192,0.2);
+        border-color: rgba(192,192,192,0.4);
+        color: #c0c0c0;
+    }
+
+    .tier-badge--bronze {
+        background: rgba(205,127,50,0.2);
+        border-color: rgba(205,127,50,0.4);
+        color: #cd7f32;
+    }
+
+    /* Stats grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-item {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        text-align: center;
+        border: 1px solid #e9ecef;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #0c0d0e;
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        margin: 0 auto 0.75rem;
+        color: #495057;
+    }
+
+    /* Multiplier info */
+    .multiplier-info {
+        background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+        border-left: 4px solid #495057;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .multiplier-label {
+        font-size: 0.85rem;
+        color: #495057;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .multiplier-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #0c0d0e;
+    }
+
+    /* Transactions */
+    .transactions-header {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #0c0d0e;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .transaction-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .transaction-item:last-child {
+        border-bottom: none;
+    }
+
+    .transaction-info {
+        flex: 1;
+    }
+
+    .transaction-type {
+        font-weight: 600;
+        color: #0c0d0e;
+        margin-bottom: 0.25rem;
+    }
+
+    .transaction-date {
+        font-size: 0.85rem;
+        color: #999;
+    }
+
+    .transaction-amount {
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    .transaction-amount--earn {
+        color: #28a745;
+    }
+
+    .transaction-amount--spend {
+        color: #ff4444;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-top: 1.5rem;
+    }
+
+    .action-btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .action-btn--primary {
+        background: linear-gradient(135deg, #495057, #343a40);
+        color: white;
+    }
+
+    .action-btn--primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .action-btn--secondary {
+        background: #f0f0f0;
+        color: #333;
+    }
+
+    .action-btn--secondary:hover {
+        background: #e2e2e2;
+    }
+
+    @media (max-width: 768px) {
+        .balance-value {
+            font-size: 2rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .action-btn {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="loyalty-section">
+    <div class="container mx-auto px-4" style="max-width: 900px;">
+        <div class="loyalty-card">
+            <div class="loyalty-header">
+                <h1 class="loyalty-title">Бонусна програма</h1>
+                <p class="loyalty-subtitle">Накопичуйте та витрачайте бонусні поінти</p>
+            </div>
+
+            <!-- Balance Card -->
+            <div class="balance-card">
+                <div class="balance-label">Ваш баланс бонусів</div>
+                <div class="balance-value">{{ stats.balance|floatformat:0 }} ₴</div>
+                <div class="balance-subtext">
+                    Заробленого: {{ stats.total_earned|floatformat:0 }} ₴ |
+                    Витрачено: {{ stats.total_spent|floatformat:0 }} ₴
+                </div>
+                <span class="tier-badge tier-badge--{{ loyalty_account.tier }}">
+                    {{ stats.tier }}
+                </span>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-label">Поточний рівень</div>
+                    <div class="stat-value">{{ stats.tier|title }}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Бонусний мультиплікатор</div>
+                    <div class="stat-value">{{ stats.multiplier }}x</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Знижка за рівнем</div>
+                    <div class="stat-value">{{ stats.tier_discount }}%</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Всього замовлень</div>
+                    <div class="stat-value">{{ loyalty_account.user.orders.count }}</div>
+                </div>
+            </div>
+
+            <!-- Multiplier Info -->
+            <div class="multiplier-info">
+                <div class="multiplier-label">📊 Як це працює</div>
+                <div class="multiplier-value">За кожну покупку ви отримуєте 5% від суми як бонусні поінти</div>
+                <div style="font-size: 0.9rem; color: #495057; margin-top: 0.75rem;">
+                    Чим вищий ваш рівень, тим більше бонусів ви отримуєте (мультиплікатор 1x - 2x)
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            {% if transactions %}
+            <div>
+                <h2 class="transactions-header">Останні операції</h2>
+                {% for transaction in transactions %}
+                <div class="transaction-item">
+                    <div class="transaction-info">
+                        <div class="transaction-type">
+                            {% if transaction.transaction_type == 'earn' %}
+                            ✓ Бонуси отримані
+                            {% elif transaction.transaction_type == 'spend' %}
+                            ✕ Бонуси витрачені
+                            {% elif transaction.transaction_type == 'adjustment' %}
+                            ⚙ Коригування
+                            {% else %}
+                            Операція
+                            {% endif %}
+                        </div>
+                        <div class="transaction-date">{{ transaction.created_at|date:"d.m.Y о H:i" }}</div>
+                        {% if transaction.description %}
+                        <div style="font-size: 0.85rem; color: #666; margin-top: 0.25rem;">{{ transaction.description }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="transaction-amount {% if transaction.transaction_type == 'earn' %}transaction-amount--earn{% else %}transaction-amount--spend{% endif %}">
+                        {% if transaction.transaction_type == 'earn' %}+{% else %}-{% endif %}{{ transaction.amount }}₴
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="{% url 'loyalty:tiers' %}" class="action-btn action-btn--primary">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                    </svg>
+                    Рівні та привілеї
+                </a>
+                <a href="{% url 'loyalty:transactions' %}" class="action-btn action-btn--secondary">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Вся історія
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

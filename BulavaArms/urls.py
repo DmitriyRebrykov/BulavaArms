@@ -9,4 +9,6 @@ urlpatterns = [
     path('cart/', include("apps.cart.urls")),
     path('users/', include("apps.users.urls")),
     path('payments/', include("apps.payments.urls")),
+    path('wishlist/', include("apps.wishlist.urls")),      # ДОБАВИТЬ
+    path('loyalty/', include("apps.loyalty.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

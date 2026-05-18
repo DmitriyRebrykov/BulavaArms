@@ -126,30 +126,60 @@
                     </div>
 
                     <!-- Add to Cart -->
-                    <form action="{% url 'cart:cart_add' product.id %}" method="post" class="mb-8">
-                        {% csrf_token %}
-                        <div class="flex flex-col sm:flex-row gap-3">
-                            <!-- Quantity -->
-                            <div class="flex items-center border border-gray-300 bg-white w-full sm:w-32 h-12">
-                                <button type="button" onclick="decrementQty()" class="w-10 h-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors font-bold text-lg">-</button>
-                                <input type="number" name="quantity" id="quantity" value="1" min="1" max="10" class="w-full h-full text-center border-none focus:ring-0 text-gray-900 font-bold bg-transparent p-0">
-                                <button type="button" onclick="incrementQty()" class="w-10 h-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors font-bold text-lg">+</button>
-                            </div>
+                    <!-- ЗАМЕНИТЕ в вашем product_detail.html эту секцию: -->
 
-                            <!-- Button -->
-                            <button type="submit"
-                                    class="flex-1 h-12 bg-gray-900 hover:bg-gray-800 text-white font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-sm
-                                    {% if not product.in_stock %}opacity-60 cursor-not-allowed hover:bg-gray-900{% endif %}"
-                                    {% if not product.in_stock %}disabled{% endif %}>
-                                {% if product.in_stock %}
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                                    Купити
-                                {% else %}
-                                    Повідомити
-                                {% endif %}
-                            </button>
-                        </div>
-                    </form>
+<!-- Add to Cart -->
+<form action="{% url 'cart:cart_add' product.id %}" method="post" class="mb-8">
+    {% csrf_token %}
+    <div class="flex flex-col gap-3">
+        <!-- Quantity Row -->
+        <div class="flex flex-col sm:flex-row gap-3">
+            <!-- Quantity -->
+            <div class="flex items-center border border-gray-300 bg-white w-full sm:w-32 h-12">
+                <button type="button" onclick="decrementQty()" class="w-10 h-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors font-bold text-lg">-</button>
+                <input type="number" name="quantity" id="quantity" value="1" min="1" max="10" class="w-full h-full text-center border-none focus:ring-0 text-gray-900 font-bold bg-transparent p-0">
+                <button type="button" onclick="incrementQty()" class="w-10 h-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors font-bold text-lg">+</button>
+            </div>
+
+            <!-- Buy Button -->
+            <button type="submit"
+                    class="flex-1 h-12 bg-gray-900 hover:bg-gray-800 text-white font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-sm
+                    {% if not product.in_stock %}opacity-60 cursor-not-allowed hover:bg-gray-900{% endif %}"
+                    {% if not product.in_stock %}disabled{% endif %}>
+                {% if product.in_stock %}
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                    Купити
+                {% else %}
+                    Повідомити
+                {% endif %}
+            </button>
+        </div>
+
+        <!-- Wishlist Button -->
+        {% if user.is_authenticated %}
+        <button type="button"
+                onclick="toggleWishlist({{ product.id }})"
+                id="wishlist-btn-{{ product.id }}"
+                class="h-12 bg-white hover:bg-gray-50 text-gray-900 font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-sm border border-gray-300 hover:border-red-500"
+                title="Додати в список бажань">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+            <span id="wishlist-text-{{ product.id }}">Додати в бажання</span>
+        </button>
+        {% else %}
+        <a href="{% url 'users:login' %}"
+           class="h-12 bg-white hover:bg-gray-50 text-gray-900 font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-sm border border-gray-300 hover:border-red-500"
+           title="Увійти для додавання в список бажань">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+            Увійти для бажань
+        </a>
+        {% endif %}
+    </div>
+</form>
+
 
                     <!-- Short Specs List -->
                     <div class="space-y-3 mb-6 border-t border-gray-100 pt-5">
@@ -314,6 +344,104 @@
         opacity: 1;
     }
 </style>
+<script>
+function toggleWishlist(productId) {
+    const btn = document.getElementById(`wishlist-btn-${productId}`);
+    const textSpan = document.getElementById(`wishlist-text-${productId}`);
+
+    // Отримати CSRF токен
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
+                      document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
+
+    // Показати loading стан
+    btn.disabled = true;
+    const originalText = textSpan.textContent;
+    textSpan.textContent = 'Завантаження...';
+
+    // Зробити AJAX запит
+    fetch(`/wishlist/toggle/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Оновити стан кнопки
+            if (data.in_wishlist) {
+                btn.classList.add('border-red-500', 'bg-red-50');
+                btn.style.borderColor = '#ef4444';
+                btn.style.backgroundColor = '#fef2f2';
+                textSpan.textContent = 'У список бажань ✓';
+            } else {
+                btn.classList.remove('border-red-500', 'bg-red-50');
+                btn.style.borderColor = '';
+                btn.style.backgroundColor = '';
+                textSpan.textContent = 'Додати в бажання';
+            }
+
+            // Показати повідомлення
+            showNotification(data.message, 'success');
+        } else {
+            textSpan.textContent = originalText;
+            showNotification(data.message || 'Помилка', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        textSpan.textContent = originalText;
+        showNotification('Помилка при додаванні в список', 'error');
+    })
+    .finally(() => {
+        btn.disabled = false;
+    });
+}
+
+// Функція для показу повідомлень
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 p-4 rounded shadow-lg text-white z-50 ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    }`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Ініціалізувати стан кнопки при завантаженні
+document.addEventListener('DOMContentLoaded', function() {
+    const productId = document.querySelector('[id^="wishlist-btn-"]')?.id.split('-')[2];
+
+    if (productId) {
+        // Перевірити, чи товар вже у списку
+        fetch(`/wishlist/check/${productId}/`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.in_wishlist) {
+                const btn = document.getElementById(`wishlist-btn-${productId}`);
+                const textSpan = document.getElementById(`wishlist-text-${productId}`);
+                btn.classList.add('border-red-500', 'bg-red-50');
+                btn.style.borderColor = '#ef4444';
+                btn.style.backgroundColor = '#fef2f2';
+                textSpan.textContent = 'У список бажань ✓';
+            }
+        })
+        .catch(error => console.error('Error checking wishlist:', error));
+    }
+});
+</script>
 
 <script>
     function changeImage(src, btn) {
