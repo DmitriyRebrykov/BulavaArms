@@ -10,4 +10,5 @@ urlpatterns = [
     path('liqpay/cancel/', views.liqpay_cancel, name='liqpay_cancel'),
     path('cities/', views.get_nova_poshta_cities, name='get_nova_poshta_cities'),
     path('warehouses/', views.get_nova_poshta_warehouses, name='get_nova_poshta_warehouses'),
+path('apply-loyalty/', views.apply_loyalty_discount, name='apply_loyalty'),
 ]

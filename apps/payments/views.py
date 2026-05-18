@@ -17,7 +17,6 @@ from .models import Order, OrderItem
 from .liqpay_utils import LiqPayAPI
 import logging
 
-from ..loyalty.signals import spend_loyalty_points_for_order
 
 logger = logging.getLogger(__name__)
 
@@ -127,6 +126,7 @@ def checkout(request):
         'cart_subtotal': subtotal,
         'cart_discount': discount,
         'cart_total': total,
+        'total_price': cart.get_total_price(),  # ← сюда
         'liqpay_data': payment_data['data'],
         'liqpay_signature': payment_data['signature'],
         'liqpay_action_url': 'https://www.liqpay.ua/api/3/checkout',
@@ -134,6 +134,71 @@ def checkout(request):
 
     return render(request, 'payments/checkout.html', context)
 
+@require_POST
+def apply_loyalty_discount(request):
+    """Применить скидку баллами и пересчитать сумму заказа"""
+    try:
+        data = json.loads(request.body)
+        points = Decimal(str(data.get('points', 0)))
+        order_id = data.get('order_id')
+
+        if not request.user.is_authenticated:
+            return JsonResponse({'success': False, 'message': 'Не авторизован'})
+
+        loyalty_account = LoyaltyAccount.objects.get(user=request.user)
+
+        # Проверяем что баллов хватает
+        if points > loyalty_account.balance:
+            return JsonResponse({
+                'success': False,
+                'message': f'Недостатньо балів. Доступно: {loyalty_account.balance}'
+            })
+
+        order = Order.objects.get(order_id=order_id)
+
+        # Максимум 50% от суммы заказа
+        max_discount = (order.subtotal - order.discount) * Decimal('0.5')
+        points = min(points, max_discount)
+
+        if points <= 0:
+            return JsonResponse({'success': False, 'message': 'Невірна сума'})
+
+        # Сохраняем в сессию для дальнейшего списания
+        request.session['loyalty_points_to_use'] = str(points)
+        request.session['loyalty_order_id'] = order_id
+
+        new_total = order.subtotal - order.discount - points
+        if new_total < 0:
+            new_total = Decimal('0')
+
+        # Пересчитываем LiqPay форму с новой суммой
+        liqpay = LiqPayAPI()
+        result_url = request.build_absolute_uri(reverse('payments:liqpay_success'))
+        server_url = request.build_absolute_uri(reverse('payments:liqpay_callback'))
+
+        payment_data = liqpay.create_payment_form(
+            order_id=order_id,
+            amount=str(new_total),
+            description=f'Оплата замовлення {order_id} на BulavaArms',
+            result_url=result_url,
+            server_url=server_url,
+        )
+
+        return JsonResponse({
+            'success': True,
+            'points_applied': str(points),
+            'new_total': str(new_total),
+            'liqpay_data': payment_data['data'],
+            'liqpay_signature': payment_data['signature'],
+            'message': f'Знижку {points} ₴ застосовано'
+        })
+
+    except LoyaltyAccount.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Бонусний рахунок не знайдено'})
+    except Order.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Замовлення не знайдено'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
 
 @require_http_methods(["POST"])
 def get_nova_poshta_cities(request):

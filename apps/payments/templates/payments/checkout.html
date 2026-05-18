@@ -532,84 +532,65 @@
 
                 <!-- БЛОК ЛОЯЛЬНОСТІ -->
                 {% if user.is_authenticated %}
-                <div class="checkout-card">
-                    <h2 class="checkout-card__title">💰 Використати бонусні бали</h2>
+<div class="checkout-card">
+    <h2 class="checkout-card__title">💰 Використати бонусні бали</h2>
 
-                    <div style="background:#f0f4f8; border:1px solid #e2e8f0; border-radius:8px; padding:1.25rem; margin-bottom:1.25rem;">
-                        <p style="font-size:0.9rem; color:#495057; margin-bottom:0.25rem;">Ваш баланс:</p>
-                        <p style="font-size:1.5rem; font-weight:700; color:#2196F3; margin:0;">
-                            100 балів
-                        </p>
-                        <p style="font-size:0.8rem; color:#6c757d; margin-top:0.25rem;">1 бал = 1 ₴ знижки</p>
-                    </div>
+    <div style="background:#f0f4f8; border:1px solid #e2e8f0; border-radius:8px; padding:1.25rem; margin-bottom:1.25rem;">
+        <p style="font-size:0.9rem; color:#495057; margin-bottom:0.25rem;">Ваш баланс:</p>
+        <p style="font-size:1.5rem; font-weight:700; color:#2196F3; margin:0;" id="loyalty-balance">
+            {{ user.loyalty_account.balance|floatformat:0 }} балів
+        </p>
+        <p style="font-size:0.8rem; color:#6c757d; margin-top:0.25rem;">1 бал = 1 ₴ знижки</p>
+    </div>
 
-                    <!-- ФОРМА ВИКОРИСТАННЯ БАЛІВ -->
-                    <form method="post" action="{% url 'loyalty:use_points' %}">
-                        {% csrf_token %}
+    <div id="loyalty-applied-info" style="display:none; background:#e8f5e9; border:1px solid #c8e6c9; border-radius:8px; padding:1rem; margin-bottom:1.25rem;">
+        <p style="color:#2e7d32; font-weight:700; margin:0;">
+            ✓ Знижку <span id="applied-points-display">0</span> ₴ застосовано
+        </p>
+        <button type="button" onclick="cancelLoyaltyDiscount()"
+                style="font-size:0.8rem; color:#dc3545; background:none; border:none; cursor:pointer; padding:0; margin-top:0.4rem;">
+            Скасувати знижку
+        </button>
+    </div>
 
-                        <label style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1.25rem; cursor:pointer;">
-                            <input type="checkbox"
-                                   id="use-loyalty-points"
-                                   name="use_loyalty_points"
-                                   style="width:18px; height:18px;">
-                            <span style="font-weight:600; color:#0c0d0e;">Використати бали для знижки</span>
-                        </label>
+    <div id="loyalty-form-block">
+        <label style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1.25rem; cursor:pointer;">
+            <input type="checkbox" id="use-loyalty-points" style="width:18px; height:18px;">
+            <span style="font-weight:600; color:#0c0d0e;">Використати бали для знижки</span>
+        </label>
 
-                        <div id="loyalty-input-block" style="display: none; margin-bottom:1.25rem;">
-                            <label class="form-label">
-                                Скільки балів використати?
-                                <span class="required">*</span>
-                            </label>
+        <div id="loyalty-input-block" style="display:none; margin-bottom:1.25rem;">
+            <label class="form-label">Скільки балів використати?</label>
 
-                            <div style="display:flex; gap:0.5rem;">
-                                <input type="number"
-                                       name="points_amount"
-                                       id="points-amount"
-                                       min="0"
-                                       max="{{ user.loyaltyaccount.balance|floatformat:0 }}"
-                                       placeholder="Введіть кількість"
-                                       class="form-input" style="flex:1;">
+            <div style="display:flex; gap:0.5rem; margin-bottom:0.75rem;">
+                <input type="number"
+                       id="points-amount"
+                       min="1"
+                       max="{{ user.loyalty_account.balance|floatformat:0 }}"
+                       placeholder="Введіть кількість"
+                       class="form-input" style="flex:1;">
+                <button type="button" onclick="setMaxPoints()"
+                        style="padding:0 1rem; background:#e2e8f0; border-radius:8px; font-weight:600; color:#495057; border:none; cursor:pointer;">
+                    Макс
+                </button>
+            </div>
 
-                                <button type="button"
-                                        onclick="document.getElementById('points-amount').value = {{ user.loyaltyaccount.balance|floatformat:0 }}; document.getElementById('points-amount').dispatchEvent(new Event('input'));"
-                                        style="padding:0 1rem; background:#e2e8f0; border-radius:8px; font-weight:600; color:#495057; border:none; cursor:pointer;">
-                                    Макс
-                                </button>
-                            </div>
+            <div style="padding:0.85rem; background:#fff8e1; border:1px solid #ffe082; border-radius:8px; margin-bottom:1rem;">
+                <p style="font-size:0.85rem; color:#795548; margin:0;">
+                    ⚠️ Можна оплатити балами до 50% від суми:
+                    <strong id="max-points-display">{{ cart_total|floatformat:0 }}</strong> ₴
+                </p>
+            </div>
 
-                            <div style="margin-top:1rem; padding:0.85rem; background:#fff8e1; border:1px solid #ffe082; border-radius:8px;">
-                                <p style="font-size:0.85rem; color:#795548; margin:0;">
-                                    ⚠️ Максимум для цього замовлення:
-                                    <strong>{{ total_price|floatformat:0 }} ₴</strong>
-                                    <br>
-                                    <span style="font-size:0.75rem; opacity:0.8;">(50% від суми)</span>
-                                </p>
-                            </div>
-
-                            <!-- ПОПЕРЕДНІЙ ПЕРЕГЛЯД ЗНИЖКИ -->
-                            <div id="discount-preview" style="margin-top:1rem; padding:0.85rem; background:#e8f5e9; border:1px solid #c8e6c9; border-radius:8px; display:none;">
-                                <p style="font-size:0.85rem; color:#2e7d32; margin:0 0 0.25rem 0;">Ваша знижка:</p>
-                                <p style="font-size:1.2rem; font-weight:700; color:#2e7d32; margin:0;" id="discount-amount">0 ₴</p>
-                            </div>
-
-                            <button type="submit" class="auth-notice__btn auth-notice__btn--primary" style="margin-top:1.25rem; width:100%; justify-content:center; padding:0.8rem;">
-                                Застосувати знижку
-                            </button>
-                        </div>
-                    </form>
-
-                    <!-- ІНФОРМАЦІЙНИЙ БЛОК -->
-                    <div style="margin-top:1.5rem; padding:1rem; background:#f8f9fa; border:1px solid #e2e8f0; border-radius:8px;">
-                        <h4 style="font-weight:700; color:#343a40; margin-bottom:0.5rem; font-size:0.9rem;">📌 Як працюють бали?</h4>
-                        <ul style="font-size:0.85rem; color:#495057; line-height:1.6; padding-left:1.2rem; margin:0;">
-                            <li>Ви отримуєте 5% від кожної покупки у вигляді балів</li>
-                            <li>1 бал = 1 ₴ знижки на будь-які товари</li>
-                            <li>Чим вищий ваш рівень, тим більше балів ви отримуєте</li>
-                            <li>Можна оплатити балами до 50% від суми замовлення</li>
-                        </ul>
-                    </div>
-                </div>
-                {% endif %}
+            <button type="button" onclick="applyLoyaltyDiscount()"
+                    id="apply-loyalty-btn"
+                    style="width:100%; padding:0.8rem; background:#f59e0b; color:white; border:none; border-radius:8px; font-weight:600; cursor:pointer; font-size:0.95rem;">
+                Застосувати знижку
+            </button>
+        </div>
+    </div>
+</div>
+{% endif %}
 
                 <!-- Payment Summary -->
                 <div class="checkout-card">
@@ -984,4 +965,112 @@ document.getElementById('points-amount')?.addEventListener('input', function() {
     }
 });
 </script>
+    <script>
+    // ─── Loyalty logic ─────────────────────────────────────────────────────
+
+let loyaltyApplied = false;
+
+document.getElementById('use-loyalty-points')?.addEventListener('change', function() {
+    const inputBlock = document.getElementById('loyalty-input-block');
+    if (inputBlock) {
+        inputBlock.style.display = this.checked ? 'block' : 'none';
+    }
+});
+
+function setMaxPoints() {
+    const maxBalance = parseFloat('{{ user.loyalty_account.balance|floatformat:0 }}') || 0;
+    const maxFromOrder = parseFloat('{{ cart_total }}') * 0.5;
+    const max = Math.min(maxBalance, maxFromOrder);
+    document.getElementById('points-amount').value = Math.floor(max);
+}
+
+function applyLoyaltyDiscount() {
+    const points = parseFloat(document.getElementById('points-amount').value);
+    const orderId = document.querySelector('[name=order_id]').value;
+
+    if (!points || points <= 0) {
+        alert('Введіть кількість балів');
+        return;
+    }
+
+    const btn = document.getElementById('apply-loyalty-btn');
+    btn.disabled = true;
+    btn.textContent = 'Застосування...';
+
+    fetch('{% url "payments:apply_loyalty" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrf(),
+        },
+        body: JSON.stringify({ points: points, order_id: orderId })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            loyaltyApplied = true;
+
+            // Обновляем LiqPay форму с новой суммой
+            document.querySelector('#liqpayForm [name=data]').value = data.liqpay_data;
+            document.querySelector('#liqpayForm [name=signature]').value = data.liqpay_signature;
+
+            // Обновляем отображение суммы
+            document.querySelector('.summary-row--total span:last-child').textContent = data.new_total + ' ₴';
+            document.getElementById('payBtn').innerHTML = `
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:22px;height:22px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                </svg>
+                Оплатити ${data.new_total} ₴
+            `;
+
+            // Показываем инфо о применённой скидке
+            document.getElementById('applied-points-display').textContent = data.points_applied;
+            document.getElementById('loyalty-applied-info').style.display = 'block';
+            document.getElementById('loyalty-form-block').style.display = 'none';
+
+        } else {
+            alert(data.message);
+            btn.disabled = false;
+            btn.textContent = 'Застосувати знижку';
+        }
+    })
+    .catch(() => {
+        alert('Помилка запиту');
+        btn.disabled = false;
+        btn.textContent = 'Застосувати знижку';
+    });
+}
+
+function cancelLoyaltyDiscount() {
+    loyaltyApplied = false;
+
+    // Восстанавливаем оригинальную сумму
+    document.querySelector('.summary-row--total span:last-child').textContent = '{{ cart_total }} ₴';
+    document.getElementById('payBtn').innerHTML = `
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:22px;height:22px;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+        </svg>
+        Оплатити {{ cart_total }} ₴
+    `;
+
+    // Сбрасываем сессию
+    fetch('{% url "payments:apply_loyalty" %}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
+        body: JSON.stringify({ points: 0, order_id: document.querySelector('[name=order_id]').value, cancel: true })
+    });
+
+    document.getElementById('loyalty-applied-info').style.display = 'none';
+    document.getElementById('loyalty-form-block').style.display = 'block';
+    document.getElementById('use-loyalty-points').checked = false;
+    document.getElementById('loyalty-input-block').style.display = 'none';
+    document.getElementById('points-amount').value = '';
+
+    // Восстанавливаем оригинальный LiqPay
+    document.querySelector('#liqpayForm [name=data]').value = '{{ liqpay_data }}';
+    document.querySelector('#liqpayForm [name=signature]').value = '{{ liqpay_signature }}';
+}
+    </script>
 {% endblock %}
