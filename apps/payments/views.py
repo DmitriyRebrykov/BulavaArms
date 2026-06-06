@@ -319,6 +319,15 @@ def liqpay_callback(request):
     except Order.DoesNotExist:
         return HttpResponse(status=404)
 
+    if order.status == 'pending':
+        order.status = 'paid'
+        order.save()
+
+    if order.status in ['paid', 'processing']:
+        cart = Cart(request)
+        if cart.has_products():
+            cart.clear()
+
     order.liqpay_payment_id = payment_id or ''
     order.liqpay_order_id = liqpay_order_id or ''
 
@@ -327,7 +336,7 @@ def liqpay_callback(request):
         'failure': 'cancelled',
         'reversed': 'refunded',
         'sandbox': 'paid',
-        'processing': 'processing',
+        'processing': 'paid',
     }
     order.status = status_map.get(status, 'pending')
     order.save()

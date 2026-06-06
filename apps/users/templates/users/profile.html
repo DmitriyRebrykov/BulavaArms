@@ -51,7 +51,6 @@
         font-family: 'Montserrat', sans-serif;
     }
     .form-input:focus { outline: none; border-color: #495057; box-shadow: 0 0 0 3px rgba(73,80,87,0.1); }
-    .form-input.readonly { background: #f8f9fa; color: #6c757d; cursor: not-allowed; }
     .errorlist { list-style: none; padding: 0; margin: 0.25rem 0 0; }
     .errorlist li { color: #dc3545; font-size: 0.82rem; }
 
@@ -102,6 +101,31 @@
     .alert-success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
     .alert-error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
 
+    /* Loyalty widget */
+    .loyalty-widget {
+        background: linear-gradient(135deg, #1a1d20 0%, #343a40 100%);
+        border-radius: 12px;
+        padding: 1.25rem;
+        color: white;
+        margin: 0.75rem;
+    }
+    .loyalty-widget__label { font-size: 0.75rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem; }
+    .loyalty-widget__balance { font-size: 1.8rem; font-weight: 800; line-height: 1; margin-bottom: 0.25rem; }
+    .loyalty-widget__sub { font-size: 0.75rem; opacity: 0.6; margin-bottom: 0.75rem; }
+    .loyalty-tier {
+        display: inline-block;
+        padding: 0.2rem 0.6rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .tier-bronze { background: rgba(205,127,50,0.3); color: #cd7f32; border: 1px solid rgba(205,127,50,0.4); }
+    .tier-silver { background: rgba(192,192,192,0.3); color: #c0c0c0; border: 1px solid rgba(192,192,192,0.4); }
+    .tier-gold   { background: rgba(255,215,0,0.3);  color: #ffd700; border: 1px solid rgba(255,215,0,0.4); }
+    .tier-platinum { background: rgba(180,160,255,0.3); color: #b8a0ff; border: 1px solid rgba(180,160,255,0.4); }
+
     @media (max-width: 768px) {
         .form-grid { grid-template-columns: 1fr; }
         .form-group.full { grid-column: span 1; }
@@ -151,6 +175,23 @@
                         <div class="sidebar-email">{{ user.email }}</div>
                     </div>
 
+                    <!-- ═══ БОНУСНИЙ РАХУНОК ═══ -->
+                    {% if user.loyalty_account %}
+                    <div class="loyalty-widget">
+                        <div class="loyalty-widget__label">Бонусний рахунок</div>
+                        <div class="loyalty-widget__balance">{{ user.loyalty_account.balance|floatformat:0 }} <span style="font-size:1rem;font-weight:400;opacity:0.7">балів</span></div>
+                        <div class="loyalty-widget__sub">1 бал = 1 ₴ знижки</div>
+                        <span class="loyalty-tier tier-{{ user.loyalty_account.tier }}">
+                            {% if user.loyalty_account.tier == 'bronze' %}🥉 Бронза
+                            {% elif user.loyalty_account.tier == 'silver' %}🥈 Срібло
+                            {% elif user.loyalty_account.tier == 'gold' %}🥇 Золото
+                            {% elif user.loyalty_account.tier == 'platinum' %}💎 Платина
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% endif %}
+                    <!-- ═══════════════════════ -->
+
                     <nav class="sidebar-nav">
                         <a href="{% url 'users:profile' %}" class="sidebar-link active">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
@@ -199,56 +240,48 @@
                         </div>
 
                         <div class="form-grid">
-                            <!-- First name -->
                             <div class="form-group">
                                 <label class="form-label">Ім'я</label>
                                 <input type="text" name="first_name" class="form-input" value="{{ form.first_name.value|default:'' }}" placeholder="Іван">
                                 {% if form.first_name.errors %}<ul class="errorlist">{% for e in form.first_name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
                             </div>
 
-                            <!-- Last name -->
                             <div class="form-group">
                                 <label class="form-label">Прізвище</label>
                                 <input type="text" name="last_name" class="form-input" value="{{ form.last_name.value|default:'' }}" placeholder="Петренко">
                                 {% if form.last_name.errors %}<ul class="errorlist">{% for e in form.last_name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
                             </div>
 
-                            <!-- Email -->
                             <div class="form-group">
                                 <label class="form-label">Email</label>
                                 <input type="email" name="email" class="form-input" value="{{ form.email.value|default:'' }}" placeholder="email@example.com">
                                 {% if form.email.errors %}<ul class="errorlist">{% for e in form.email.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
                             </div>
 
-                            <!-- Phone -->
                             <div class="form-group">
                                 <label class="form-label">Телефон</label>
                                 <input type="tel" name="phone" class="form-input" value="{{ form.phone.value|default:'' }}" placeholder="+380501234567">
                                 {% if form.phone.errors %}<ul class="errorlist">{% for e in form.phone.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
                             </div>
 
-                            <!-- Date of birth -->
                             <div class="form-group">
                                 <label class="form-label">Дата народження</label>
                                 <input type="date" name="date_of_birth" class="form-input" value="{{ form.date_of_birth.value|default:'' }}">
                                 {% if form.date_of_birth.errors %}<ul class="errorlist">{% for e in form.date_of_birth.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
                             </div>
 
-                            <!-- City -->
                             <div class="form-group">
                                 <label class="form-label">Місто</label>
                                 <input type="text" name="city" class="form-input" value="{{ form.city.value|default:'' }}" placeholder="Київ">
                                 {% if form.city.errors %}<ul class="errorlist">{% for e in form.city.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
                             </div>
 
-                            <!-- Postal code -->
                             <div class="form-group">
                                 <label class="form-label">Поштовий індекс</label>
                                 <input type="text" name="postal_code" class="form-input" value="{{ form.postal_code.value|default:'' }}" placeholder="01001">
                                 {% if form.postal_code.errors %}<ul class="errorlist">{% for e in form.postal_code.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
                             </div>
 
-                            <!-- Address -->
                             <div class="form-group full">
                                 <label class="form-label">Адреса доставки</label>
                                 <textarea name="address" class="form-input" rows="2" placeholder="Вулиця, будинок, квартира">{{ form.address.value|default:'' }}</textarea>
@@ -291,7 +324,6 @@
                                 </span>
                             </div>
 
-                            <!-- Items -->
                             <div class="order-items">
                                 {% for item in order.items.all %}
                                 <div class="order-item-line">
@@ -301,10 +333,15 @@
                                 {% endfor %}
                             </div>
 
-                            <!-- Delivery info -->
                             {% if order.city or order.address %}
                             <div style="font-size:0.82rem; color:#6c757d; margin-bottom:0.75rem;">
                                 📦 {{ order.city }}{% if order.address %}, {{ order.address }}{% endif %}
+                            </div>
+                            {% endif %}
+
+                            {% if order.loyalty_points_earned > 0 %}
+                            <div style="font-size:0.82rem; color:#28a745; margin-bottom:0.75rem;">
+                                🎁 Нараховано бонусів: +{{ order.loyalty_points_earned|floatformat:0 }} балів
                             </div>
                             {% endif %}
 
@@ -327,22 +364,6 @@
                         </div>
                     {% endif %}
                 </div>
-            <!-- Loyalty Widget для sidebar -->
-<div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg p-4 mb-4">
-    <div class="flex justify-between items-start mb-3">
-        <h3 class="font-bold">Мои поинты</h3>
-        <span class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded">
-            {{ user.loyaltyaccount.tier|upper }}
-        </span>
-    </div>
-    <div class="text-3xl font-bold mb-2">
-        {{ user.loyaltyaccount.balance|floatformat:0 }}
-    </div>
-    <p class="text-blue-100 text-xs mb-3">доступно для использования</p>
-    <a href="{% url 'loyalty:dashboard' %}" class="text-xs underline hover:no-underline">
-        Подробнее →
-    </a>
-</div>
 
             </div>
         </div>

@@ -1,5 +1,5 @@
 from django.db.models import Q, Count
-from django.shortcuts import render,get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from .models import Product, Category
 from .filters import ProductFilter
@@ -7,7 +7,28 @@ from .filters import ProductFilter
 
 def main(request):
     """Главная страница"""
-    return render(request, 'main/main.html')
+    categories = Category.objects.annotate(
+        product_count=Count('products')
+    ).filter(product_count__gt=0).order_by('name')[:6]
+
+    # Новинки для слайдера «Хіти продажу»
+    featured_products = Product.objects.filter(
+        in_stock=True
+    ).select_related('category').order_by('-created_at')[:8]
+
+    # Товары со скидкой (если нужны отдельно)
+    discount_products = Product.objects.filter(
+        status_discount=True,
+        in_stock=True,
+        discount_price__isnull=False,
+    ).select_related('category').order_by('-created_at')[:8]
+
+    context = {
+        'categories': categories,
+        'featured_products': featured_products,
+        'discount_products': discount_products,
+    }
+    return render(request, 'main/main.html', context)
 
 
 def catalog(request):
@@ -71,7 +92,6 @@ def catalog(request):
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
 
-
     all_categories = Category.objects.annotate(
         product_count=Count('products')
     ).filter(product_count__gt=0).order_by('name')
@@ -86,14 +106,12 @@ def catalog(request):
         .exclude(manufacturer='') \
         .order_by('manufacturer')
 
-    # Калибры в рамках выбранных категорий
     calibers_with_count = base_query.values('caliber') \
         .annotate(count=Count('id')) \
         .filter(caliber__isnull=False) \
         .exclude(caliber='') \
         .order_by('caliber')
 
-    # Статистика по наличию и скидкам
     in_stock_count = base_query.filter(in_stock=True).count()
     discount_count = base_query.filter(status_discount=True).count()
 
@@ -115,4 +133,4 @@ def catalog(request):
 
 def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug)
-    return render(request,'main/product-detail.html', {'product':product})
+    return render(request, 'main/product-detail.html', {'product': product})

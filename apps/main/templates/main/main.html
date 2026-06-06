@@ -8,38 +8,26 @@
 <section class="relative px-4 pt-6 pb-12">
     <div class="container mx-auto">
         <div class="relative h-[600px] rounded-2xl overflow-hidden shadow-2xl group">
-            <!-- Background Image (Tactical Theme) -->
             <div class="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105"
                  style="background-image: url('https://images.unsplash.com/photo-1595590424283-b8f17842773f?q=80&w=2070&auto=format&fit=crop');">
             </div>
-
-            <!-- Dark Gradient Overlay for Readability -->
             <div class="absolute inset-0 bg-gradient-to-r from-primary-900 via-primary-900/80 to-transparent"></div>
-
-            <!-- Hero Content -->
             <div class="absolute inset-0 flex items-center px-6 md:px-16">
-                <div class="max-w-2xl text-white space-y-6 animate-fade-in-up">
+                <div class="max-w-2xl text-white space-y-6">
                     <div class="inline-flex items-center space-x-2 py-1 px-3 rounded-full bg-white/10 border border-white/20 backdrop-blur-md">
                         <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                         <span class="text-sm font-bold tracking-wider uppercase text-gray-200">Нова колекція 2026</span>
                     </div>
-
                     <h1 class="text-4xl md:text-6xl font-extrabold leading-tight tracking-tight drop-shadow-lg">
-                        Надійність,<br>
-                        перевірена в бою
+                        Надійність,<br>перевірена в бою
                     </h1>
-
                     <p class="text-lg text-gray-300 leading-relaxed max-w-lg border-l-4 border-accent-500 pl-4">
                         Офіційний дистриб'ютор найкращих світових брендів. Зброя, оптика та екіпірування професійного рівня.
                     </p>
-
                     <div class="flex flex-wrap gap-4 pt-6">
                         <a href="{% url 'main:catalog' %}" class="px-8 py-4 bg-white text-primary-900 font-bold rounded-lg hover:bg-gray-100 transition-all transform hover:-translate-y-1 shadow-lg flex items-center">
                             <span>До каталогу</span>
                             <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-                        </a>
-                        <a href="#" class="px-8 py-4 bg-transparent border border-white/30 text-white font-bold rounded-lg hover:bg-white/10 transition-all backdrop-blur-sm">
-                            Консультація
                         </a>
                     </div>
                 </div>
@@ -72,7 +60,10 @@
     </div>
 </section>
 
-<!-- Categories Grid -->
+<!-- ═══════════════════════════════════════════
+     РЕАЛЬНІ КАТЕГОРІЇ З БД
+════════════════════════════════════════════ -->
+{% if categories %}
 <section class="mb-20">
     <div class="container mx-auto px-4">
         <div class="flex justify-between items-end mb-8">
@@ -86,143 +77,211 @@
             </a>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Category 1 -->
-            <a href="#" class="group relative h-80 rounded-xl overflow-hidden shadow-lg">
-                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                     style="background-image: url('https://images.unsplash.com/photo-1599409636295-e3cf3538f212?q=80&w=2070&auto=format&fit=crop');"></div>
-                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity"></div>
-                <div class="absolute bottom-0 left-0 p-6 w-full">
-                    <h3 class="text-2xl font-bold text-white mb-1">Нарізна зброя</h3>
-                    <p class="text-gray-300 text-sm">Карабіни AR-15, гвинтівки</p>
-                </div>
-            </a>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+            {% for category in categories %}
+            <a href="{% url 'main:catalog' %}?category={{ category.slug }}"
+               class="group relative rounded-xl overflow-hidden shadow-lg"
+               style="height: 280px;">
 
-            <!-- Category 2 -->
-            <a href="#" class="group relative h-80 rounded-xl overflow-hidden shadow-lg">
-                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                     style="background-image: url('https://images.unsplash.com/photo-1589254065878-42c9da997008?q=80&w=2070&auto=format&fit=crop');"></div>
-                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity"></div>
-                <div class="absolute bottom-0 left-0 p-6 w-full">
-                    <h3 class="text-2xl font-bold text-white mb-1">Оптика</h3>
-                    <p class="text-gray-300 text-sm">Коліматори, приціли, ПНБ</p>
+                <!-- Фон — если нет картинки, красивый градиент -->
+                <div class="absolute inset-0 transition-transform duration-700 group-hover:scale-110"
+                     style="background: linear-gradient(135deg,
+                        {% cycle '#1a1d20' '#212529' '#343a40' '#495057' '#0c0d0e' '#1a1d20' %} 0%,
+                        {% cycle '#343a40' '#495057' '#6c757d' '#343a40' '#495057' '#343a40' %} 100%);">
                 </div>
-            </a>
 
-            <!-- Category 3 -->
-            <a href="#" class="group relative h-80 rounded-xl overflow-hidden shadow-lg">
-                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                     style="background-image: url('https://images.unsplash.com/photo-1625902377319-5d6771092b67?q=80&w=1974&auto=format&fit=crop');"></div>
-                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity"></div>
+                <!-- Иконка категории -->
+                <div class="absolute inset-0 flex items-center justify-center opacity-10">
+                    <svg class="w-40 h-40 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/>
+                    </svg>
+                </div>
+
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-80 group-hover:opacity-90 transition-opacity"></div>
+
                 <div class="absolute bottom-0 left-0 p-6 w-full">
-                    <h3 class="text-2xl font-bold text-white mb-1">Амуніція</h3>
-                    <p class="text-gray-300 text-sm">Плитоноски, шоломи, рюкзаки</p>
+                    <h3 class="text-xl font-bold text-white mb-1">{{ category.name }}</h3>
+                    <p class="text-gray-300 text-sm">{{ category.product_count }} товарів</p>
                 </div>
             </a>
+            {% endfor %}
         </div>
     </div>
 </section>
+{% endif %}
 
-<!-- Popular Products Slider (CSS Scroll Snap) -->
+<!-- ═══════════════════════════════════════════
+     РЕАЛЬНІ ТОВАРИ — ХІТИ ПРОДАЖУ
+════════════════════════════════════════════ -->
+{% if featured_products %}
 <section class="mb-20 bg-primary-50 py-16">
     <div class="container mx-auto px-4">
         <div class="text-center mb-10">
             <h2 class="text-3xl font-bold text-primary-900">Хіти продажу</h2>
-            <p class="text-primary-500 mt-2">Найбільш затребувані позиції цього місяця</p>
+            <p class="text-primary-500 mt-2">Найбільш затребувані позиції</p>
         </div>
 
         <!-- Scroll Container -->
-        <div class="flex overflow-x-auto space-x-6 pb-8 snap-x snap-mandatory hide-scrollbar" style="scrollbar-width: none; -ms-overflow-style: none;">
-            <!-- Product Card 1 -->
-            <div class="flex-none w-72 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 snap-center border border-gray-100">
-                <div class="relative h-48 bg-gray-100 rounded-t-xl overflow-hidden group">
-                    <!-- Placeholder Image -->
-                    <div class="w-full h-full flex items-center justify-center text-gray-400 bg-gray-200">
-                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    </div>
-                    <span class="absolute top-2 left-2 bg-green-600 text-white text-xs font-bold px-2 py-1 rounded">TOP</span>
-                </div>
-                <div class="p-4">
-                    <div class="text-xs text-gray-500 mb-1">Daniel Defense</div>
-                    <h3 class="font-bold text-primary-900 mb-2 truncate">Карабін DDM4 V7 .223 Rem</h3>
-                    <div class="flex justify-between items-center mt-4">
-                        <span class="text-lg font-extrabold text-primary-800">125 400 ₴</span>
-                        <button class="w-8 h-8 bg-primary-800 text-white rounded-full flex items-center justify-center hover:bg-primary-700">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
+        <div class="flex overflow-x-auto space-x-6 pb-8 snap-x snap-mandatory hide-scrollbar"
+             style="scrollbar-width: none; -ms-overflow-style: none;">
 
-            <!-- Product Card 2 -->
+            {% for product in featured_products %}
             <div class="flex-none w-72 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 snap-center border border-gray-100">
-                <div class="relative h-48 bg-gray-100 rounded-t-xl overflow-hidden">
-                    <div class="w-full h-full flex items-center justify-center text-gray-400 bg-gray-200">
-                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    </div>
-                    <span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">-15%</span>
-                </div>
-                <div class="p-4">
-                    <div class="text-xs text-gray-500 mb-1">EOTech</div>
-                    <h3 class="font-bold text-primary-900 mb-2 truncate">Коліматор EOTech EXPS3-0</h3>
-                    <div class="flex justify-between items-center mt-4">
-                        <div>
-                            <span class="text-lg font-extrabold text-red-600">32 500 ₴</span>
-                            <span class="text-xs text-gray-400 line-through block">38 000 ₴</span>
+
+                <!-- Image -->
+                <a href="{% url 'main:detail_page' product.slug %}"
+                   class="relative block h-48 bg-gray-100 rounded-t-xl overflow-hidden group">
+                    {% if product.main_image %}
+                        <img src="{{ product.main_image.url }}"
+                             alt="{{ product.name }}"
+                             class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105">
+                    {% else %}
+                        <div class="w-full h-full flex items-center justify-center text-gray-400 bg-gray-200">
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
                         </div>
-                        <button class="w-8 h-8 bg-primary-800 text-white rounded-full flex items-center justify-center hover:bg-primary-700">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
+                    {% endif %}
 
-            <!-- Product Card 3 -->
-            <div class="flex-none w-72 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 snap-center border border-gray-100">
-                <div class="relative h-48 bg-gray-100 rounded-t-xl overflow-hidden">
-                    <div class="w-full h-full flex items-center justify-center text-gray-400 bg-gray-200">
-                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    </div>
-                </div>
-                <div class="p-4">
-                    <div class="text-xs text-gray-500 mb-1">5.11 Tactical</div>
-                    <h3 class="font-bold text-primary-900 mb-2 truncate">Рюкзак RUSH24 2.0</h3>
-                    <div class="flex justify-between items-center mt-4">
-                        <span class="text-lg font-extrabold text-primary-800">5 400 ₴</span>
-                        <button class="w-8 h-8 bg-primary-800 text-white rounded-full flex items-center justify-center hover:bg-primary-700">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
+                    {% if product.status_discount and product.discount_price %}
+                        <span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">SALE</span>
+                    {% endif %}
+                    {% if not product.in_stock %}
+                        <span class="absolute top-2 right-2 bg-gray-500 text-white text-xs font-bold px-2 py-1 rounded">Немає</span>
+                    {% endif %}
+                </a>
 
-            <!-- Product Card 4 -->
-            <div class="flex-none w-72 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 snap-center border border-gray-100">
-                <div class="relative h-48 bg-gray-100 rounded-t-xl overflow-hidden">
-                    <div class="w-full h-full flex items-center justify-center text-gray-400 bg-gray-200">
-                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    </div>
-                </div>
+                <!-- Info -->
                 <div class="p-4">
-                    <div class="text-xs text-gray-500 mb-1">Magpul</div>
-                    <h3 class="font-bold text-primary-900 mb-2 truncate">Магазин PMAG 30 AR/M4</h3>
-                    <div class="flex justify-between items-center mt-4">
-                        <span class="text-lg font-extrabold text-primary-800">950 ₴</span>
-                        <button class="w-8 h-8 bg-primary-800 text-white rounded-full flex items-center justify-center hover:bg-primary-700">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        </button>
+                    {% if product.manufacturer %}
+                    <div class="text-xs text-gray-500 mb-1">{{ product.manufacturer }}</div>
+                    {% endif %}
+
+                    <a href="{% url 'main:detail_page' product.slug %}"
+                       class="block font-bold text-primary-900 mb-3 hover:text-primary-600 transition-colors"
+                       style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;height:2.8rem;">
+                        {{ product.name }}
+                    </a>
+
+                    <div class="flex justify-between items-center mt-2">
+                        <div>
+                            {% if product.status_discount and product.discount_price %}
+                                <span class="text-xs text-gray-400 line-through block">{{ product.price }} ₴</span>
+                                <span class="text-lg font-extrabold text-red-600">{{ product.discount_price }} ₴</span>
+                            {% else %}
+                                <span class="text-lg font-extrabold text-primary-800">{{ product.price }} ₴</span>
+                            {% endif %}
+                        </div>
+
+                        {% if product.in_stock %}
+                        <form method="post" action="{% url 'cart:cart_add' product.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit"
+                                    class="w-10 h-10 bg-primary-800 text-white rounded-full flex items-center justify-center hover:bg-primary-700 transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                </svg>
+                            </button>
+                        </form>
+                        {% else %}
+                        <span class="text-xs text-gray-400 font-medium">Немає в наявн.</span>
+                        {% endif %}
                     </div>
                 </div>
             </div>
+            {% endfor %}
+
+        </div>
+
+        <div class="text-center mt-6">
+            <a href="{% url 'main:catalog' %}"
+               class="inline-flex items-center gap-2 px-6 py-3 bg-primary-800 text-white font-bold rounded-lg hover:bg-primary-700 transition-colors">
+                Переглянути всі товари
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                </svg>
+            </a>
         </div>
     </div>
 </section>
+{% endif %}
+
+<!-- ═══════════════════════════════════════════
+     ТОВАРИ ЗІ ЗНИЖКОЮ (якщо є)
+════════════════════════════════════════════ -->
+{% if discount_products %}
+<section class="mb-20">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-end mb-8">
+            <div>
+                <h2 class="text-3xl font-bold text-primary-900">🔥 Акційні товари</h2>
+                <div class="h-1 w-20 bg-red-500 mt-2 rounded"></div>
+            </div>
+            <a href="{% url 'main:catalog' %}?status_discount=true"
+               class="hidden md:flex items-center text-red-600 hover:text-red-800 font-medium">
+                Всі акції
+                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {% for product in discount_products %}
+            <div class="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow group">
+
+                <a href="{% url 'main:detail_page' product.slug %}"
+                   class="relative block h-44 bg-gray-50 overflow-hidden">
+                    {% if product.main_image %}
+                        <img src="{{ product.main_image.url }}"
+                             alt="{{ product.name }}"
+                             class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105">
+                    {% else %}
+                        <div class="w-full h-full flex items-center justify-center text-gray-300">
+                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                    {% endif %}
+                    <span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">SALE</span>
+                </a>
+
+                <div class="p-3">
+                    <a href="{% url 'main:detail_page' product.slug %}"
+                       class="block text-sm font-semibold text-gray-900 hover:text-primary-700 mb-2 transition-colors"
+                       style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;height:2.5rem;">
+                        {{ product.name }}
+                    </a>
+
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="text-xs text-gray-400 line-through block">{{ product.price }} ₴</span>
+                            <span class="text-base font-extrabold text-red-600">{{ product.discount_price }} ₴</span>
+                        </div>
+                        <form method="post" action="{% url 'cart:cart_add' product.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit"
+                                    class="w-8 h-8 bg-gray-900 text-white rounded-lg flex items-center justify-center hover:bg-gray-700 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
 
 <!-- Features Grid -->
 <section class="mb-20">
     <div class="container mx-auto px-4">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Feature 1 -->
             <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 group hover:-translate-y-2">
                 <div class="w-14 h-14 bg-gray-100 rounded-xl flex items-center justify-center text-primary-600 mb-6 group-hover:bg-primary-800 group-hover:text-white transition-colors">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -230,23 +289,19 @@
                 <h3 class="text-xl font-bold text-primary-900 mb-3">Сертифікована якість</h3>
                 <p class="text-gray-500 leading-relaxed">Тільки оригінальна продукція з повним пакетом документів та офіційною гарантією від виробника.</p>
             </div>
-
-            <!-- Feature 2 -->
             <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 group hover:-translate-y-2">
                 <div class="w-14 h-14 bg-gray-100 rounded-xl flex items-center justify-center text-primary-600 mb-6 group-hover:bg-primary-800 group-hover:text-white transition-colors">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 </div>
                 <h3 class="text-xl font-bold text-primary-900 mb-3">Спецзв'язок</h3>
-                <p class="text-gray-500 leading-relaxed">Швидке та безпечне доставлення зброї та боєприпасів спеціалізованим транспортом по всій Україні.</p>
+                <p class="text-gray-500 leading-relaxed">Швидке та безпечне доставлення спеціалізованим транспортом по всій Україні.</p>
             </div>
-
-            <!-- Feature 3 -->
             <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 group hover:-translate-y-2">
                 <div class="w-14 h-14 bg-gray-100 rounded-xl flex items-center justify-center text-primary-600 mb-6 group-hover:bg-primary-800 group-hover:text-white transition-colors">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                 </div>
                 <h3 class="text-xl font-bold text-primary-900 mb-3">Власний сервіс</h3>
-                <p class="text-gray-500 leading-relaxed">Майстерня з ремонту та тюнінгу зброї, а також підземний тир для пристрілки та тренувань.</p>
+                <p class="text-gray-500 leading-relaxed">Майстерня з ремонту та тюнінгу, а також власний тир для пристрілки та тренувань.</p>
             </div>
         </div>
     </div>
@@ -256,21 +311,16 @@
 <section class="mb-20 px-4">
     <div class="container mx-auto">
         <div class="bg-gradient-to-br from-primary-800 to-primary-900 rounded-3xl p-12 text-center relative overflow-hidden shadow-2xl">
-             <!-- Decorative Blobs -->
-             <div class="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-gray-600 rounded-full mix-blend-overlay filter blur-3xl opacity-20"></div>
-             <div class="absolute bottom-0 left-0 -mb-10 -ml-10 w-64 h-64 bg-gray-500 rounded-full mix-blend-overlay filter blur-3xl opacity-20"></div>
-
+            <div class="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-gray-600 rounded-full mix-blend-overlay filter blur-3xl opacity-20"></div>
+            <div class="absolute bottom-0 left-0 -mb-10 -ml-10 w-64 h-64 bg-gray-500 rounded-full mix-blend-overlay filter blur-3xl opacity-20"></div>
             <div class="relative z-10">
                 <h2 class="text-3xl md:text-5xl font-extrabold text-white mb-6">Готові до нових досягнень?</h2>
                 <p class="text-lg text-gray-300 mb-10 max-w-2xl mx-auto">
-                    Наші фахівці допоможуть підібрати ідеальний комплект під ваші задачі. Професійна консультація безкоштовна.
+                    Наші фахівці допоможуть підібрати ідеальний комплект під ваші задачі. Консультація безкоштовна.
                 </p>
                 <div class="flex flex-col sm:flex-row justify-center gap-4">
                     <a href="{% url 'main:catalog' %}" class="px-8 py-4 bg-white text-primary-900 font-bold rounded-lg hover:bg-gray-200 transition-colors shadow-lg">
                         Відкрити каталог
-                    </a>
-                    <a href="#" class="px-8 py-4 bg-transparent border-2 border-gray-500 text-white font-bold rounded-lg hover:bg-white/10 hover:border-white transition-all">
-                        Зв'язатися з менеджером
                     </a>
                 </div>
             </div>
@@ -279,13 +329,7 @@
 </section>
 
 <style>
-    /* Utility for hiding scrollbar but keeping functionality */
-    .hide-scrollbar::-webkit-scrollbar {
-        display: none;
-    }
-    .hide-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
 {% endblock %}
